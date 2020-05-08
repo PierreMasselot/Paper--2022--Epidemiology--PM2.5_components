@@ -93,3 +93,37 @@ legend(par("usr")[2], par("usr")[4], countries$countryname,
   pch = countries_pch, col = countries_pal, bty = "n", xpd = T)
 dev.print(png, filename = "Results/1_PM25difference.png", 
   units = "in", res = 100)
+
+# Correlation between each constituent and monitored PM2.5
+x11()
+par(mfrow = n2mfrow(length(spec_names) + 2))
+for (i in seq_along(spec_names)){
+  plot(tot_spec$total, tot_spec[,spec_inds[i]], 
+    col = countries_pal[as.numeric(droplevels(cities$country))],
+    pch = countries_pch[as.numeric(droplevels(cities$country))],
+    xlab = "Mean annual PM2.5", ylab = spec_names[i]
+  )
+  form <- as.formula(sprintf("%s ~ total", 
+    colnames(tot_spec)[spec_inds[i]]))
+  reg <- lm(form, data = tot_spec)
+  abline(reg, lwd = 2, lty = 2)
+  text(par("usr")[1], par("usr")[4], sprintf("R2 = %1.2f", 
+    summary(reg)$r.squared), adj = c(-0.1,1.1))
+}
+plot(tot_spec$total, rowSums(tot_spec[,spec_inds]), 
+  col = countries_pal[as.numeric(droplevels(cities$country))],
+  pch = countries_pch[as.numeric(droplevels(cities$country))],
+  xlab = "Mean annual PM2.5", ylab = "Constituent sum"
+)
+reg <- lm(rowSums(tot_spec[,spec_inds]) ~ tot_spec$total, 
+  data = tot_spec)
+abline(a = 0, b = 1)
+abline(reg, lwd = 2, lty = 2)
+text(par("usr")[1], par("usr")[4], sprintf("R2 = %1.2f", 
+  summary(reg)$r.squared), adj = c(-0.1,1.1))
+plot.new()
+legend(par("usr")[1], par("usr")[4], countries$countryname, 
+  pch = countries_pch, col = countries_pal, bty = "n", xpd = T,
+  ncol = 2)
+dev.print(png, filename = "Results/1_SPECcorrelations.png", 
+  units = "in", res = 100)
