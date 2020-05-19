@@ -15,7 +15,7 @@ load("Data/2_FirstStageResults.RData")
 #   Overall association
 #-------------------------------------
 overall <- mixmeta(coefall ~ 1, S = vcovall, random = ~ 1|city,
-  data = cities, method = "reml")
+  data = cities, method = "reml", subset = conv)
   
 cityblup <- blup(overall, vcov = T)
 
@@ -23,9 +23,9 @@ cityblup <- blup(overall, vcov = T)
 #   Overall with 2-level grouping
 #-------------------------------------
 overall_country <- mixmeta(coefall ~ 1, vcovall, random = ~ 1|country/city,
-  data = cities, method = "reml")
+  data = cities, method = "reml", subset = conv)
 cityblup_country <- blup(overall_country, vcov = T, level = 1, pi = T)
-rownames(cityblup_country) <- cities$countryname
+rownames(cityblup_country) <- cities$countryname[conv]
 country_blup <- exp(unique(cityblup_country))
 
 

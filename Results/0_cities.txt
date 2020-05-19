@@ -26,31 +26,17 @@
           0           0           0 
 [1] "Excluded cities because of missing values"
 $notEnoughYears
-          cityname countryname
-5        Melbourne   Australia
-265      Fukushima       Japan
-271       Kumamoto       Japan
-285           Naha       Japan
-287       Nagasaki       Japan
-303        Tottori       Japan
-461  Ciudad Juarez      Mexico
-628       A Coruna       Spain
-634         Bilbao       Spain
-638        Caceres       Spain
-648         Huesca       Spain
-650           Leon       Spain
-666      Salamanca       Spain
-667  San Sebastian       Spain
-670        Sevilla       Spain
-675        Vitoria       Spain
-1024         Miami         USA
-1082      santonio         USA
+         cityname countryname
+303       Tottori       Japan
+461 Ciudad Juarez      Mexico
+628      A Coruna       Spain
+638       Caceres       Spain
+666     Salamanca       Spain
 
 $NAmortality
      cityname countryname
 928     Boise         USA
 991  honolulu         USA
-NA       <NA>        <NA>
 1038    Nampa         USA
 
 $NApoll
@@ -64,7 +50,6 @@ $NApoll
 923        Buffalo         USA
 925        boulder         USA
 927         Bangor         USA
-928          Boise         USA
 929         bergen         USA
 930     Burlington         USA
 933    Brownsville         USA
@@ -86,7 +71,6 @@ $NApoll
 975       ftpierce         USA
 977       Ft Wayne         USA
 978     Fayetville         USA
-979           Gary         USA
 980      green bay         USA
 981     greensburg         USA
 982   Grand heaven         USA
@@ -95,7 +79,6 @@ $NApoll
 989         Hicory         USA
 996      Iowa city         USA
 998     Jersy city         USA
-999        Klamath         USA
 1000     Kalamazoo         USA
 1001       kenosha         USA
 1004   LafayetteIN         USA
@@ -108,13 +91,10 @@ $NApoll
 1016         Macon         USA
 1017       mcallen         USA
 1018       middles         USA
-1020       Medford         USA
 1022       Modesto         USA
 1023     madisonWI         USA
-NA            <NA>        <NA>
 1025      melbourn         USA
 1028      monmouth         USA
-1029       minneap         USA
 1030    Montgomery         USA
 1031        Mobile         USA
 1032        Monroe         USA
@@ -131,16 +111,13 @@ NA            <NA>        <NA>
 1048        newark         USA
 1050         ocala         USA
 1055        Ottawa         USA
-1057       Phoenix         USA
 1059      Plymouth         USA
-1061    PortlandOR         USA
 1064       Portage         USA
 1065       portlme         USA
 1069       rochest         USA
 1070     Rockville         USA
 1071       reading         USA
 1072          Reno         USA
-1083       Spokane         USA
 1085  SpringfiedMO         USA
 1087      sarasota         USA
 1089 Saint Charles         USA
@@ -149,7 +126,6 @@ NA            <NA>        <NA>
 1092    South bend         USA
 1094      stamford         USA
 1098    Sioux City         USA
-1099        Tacoma         USA
 1102   Tallahassee         USA
 1104        Topeka         USA
 1105       trenton         USA
@@ -166,17 +142,14 @@ $NAtemp
 461    Ciudad Juarez      Mexico
 466  Puebla-Tlaxcala      Mexico
 469  Toluca de Lerdo      Mexico
-928            Boise         USA
-991         honolulu         USA
-NA              <NA>        <NA>
 1038           Nampa         USA
 
 [1] "Final count"
 
    aus8809    can8615    chi9615    chl0414    est9715    fnl9414    ger9315 
-         2         25          3          4          3          1         11 
+         3         25          3          4          3          1         11 
    grc0110    jap1115    mex9814    por8018     sa9713    spa9014    sui9513 
-         1         42          3          3          5         11          4 
+         1         46          3          3          5         17          4 
    swe9010    twn9414 uk9016Poll    usa7306 
-         1          3         31        102 
-[1] "Total: 255"
+         1          3         31        112 
+[1] "Total: 276"

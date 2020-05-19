@@ -46,8 +46,8 @@ for(i in seq(length(dlist))) {
   citydat <- dlist[[i]]
   
   # Construct crossbasis for temperature confounding
-  cbt <- crossbasis(citydat$tmean, lag = 21, 
-    arglag = list(fun = "ns", knots = logknots(21, nk = 3)),
+  cbt <- crossbasis(citydat$tmean, lag = 3, 
+    arglag = list(fun = "strata"),
     argvar = list(fun = "bs", 
       knots = quantile(citydat$tmean, c(.1, .75, .9), na.rm = T))
   )

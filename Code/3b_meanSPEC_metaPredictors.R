@@ -29,7 +29,7 @@ mean_spec <- t(sapply(dlist_spec, function(d){
 
 metamod <- mixmeta(coefall ~ mean_spec, vcovall, 
   random = ~ 1|country/city,
-  data = cities, method = "reml")
+  data = cities, method = "reml", subset = conv)
 
 beta_spec <- coef(metamod)[-1]
 se_spec <- sqrt(diag(vcov(metamod))[-1])

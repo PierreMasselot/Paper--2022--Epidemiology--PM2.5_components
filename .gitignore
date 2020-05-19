@@ -42,3 +42,6 @@ vignettes/*.pdf
 
 # Junk test files
 Test*
+
+# Other
+*Redaction/

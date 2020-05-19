@@ -111,6 +111,7 @@ for (i in seq_len(nrow(cities))){
 #     Filter cities on data quality
 #------------------------------------------
 dlist_orig <- dlist
+addyears <- 1999:2002 # Additional years for 1st stage to have longer records (especially for USA for which data only covers until 2006)
 for(i in seq(nrow(cities))) {
   # Set outliers to NAs in order to exclude them from the analysis
   dlist[[i]]$death[dlist[[i]]$outlierm == 1] <- NA
@@ -124,7 +125,8 @@ for(i in seq(nrow(cities))) {
   # N.B. Here I keep incomplete years as well 
   commonyears <- intersect(unique(dlist[[i]]$year), 
     dlist_spec[[i]]$year)
-  dlist[[i]] <- dlist[[i]][dlist[[i]]$year %in% commonyears,]
+  dlist[[i]] <- dlist[[i]][dlist[[i]]$year %in% 
+    union(addyears, commonyears),]
   dlist_spec[[i]] <- dlist_spec[[i]][
     dlist_spec[[i]]$year %in% commonyears,]
 }
@@ -134,7 +136,7 @@ for(i in seq(nrow(cities))) {
 #---- Exclusion according to a number of criteria
 exclusion <- list()
 # Cities that have less than ny years of consecutive data
-ny <- 2
+ny <- 1
 exclusion$notEnoughYears <- sapply(dlist, nrow) < (ny * 365)
 
 # Cities with a proportion > propm missing death data
