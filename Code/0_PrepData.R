@@ -103,8 +103,18 @@ for (i in seq_len(nrow(cities))){
   # PM2.5 annual mean in the PM constituents dataset
   annmean <- aggregate(dlist[[i]]$pm25, 
     by = list(year = dlist[[i]]$year), mean, na.rm = T)
-  dlist_spec[[i]]$total <- annmean$x[
+  dlist_spec[[i]]$mon_total <- annmean$x[
     match(dlist_spec[[i]]$year, annmean$year)]
+  
+  # Sum of constituents
+  spec_inds <- grep("PM25", colnames(dlist_spec[[i]]))
+  dlist_spec[[i]]$SPEC_total <- rowSums(dlist_spec[[i]][,spec_inds])
+  
+  # Constituents as proportions
+  spec_names <- sapply(strsplit(colnames(dlist_spec[[i]])[spec_inds], "_"),
+    "[", 2)
+  dlist_spec[[i]][,sprintf("PROP_%s", spec_names)] <- 
+    apply(dlist_spec[[i]][,spec_inds], 2, "/", dlist_spec[[i]]$SPEC_total)
 }
 
 #------------------------------------------
