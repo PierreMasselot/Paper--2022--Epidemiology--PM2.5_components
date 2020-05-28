@@ -9,7 +9,6 @@ library(viridis)
 library(compositions)
 library(zCompositions)
 
-setwd("C:/Users/masselpl/Documents/Recherche/2020 - LSHTM/Projects/MCC-HetPoll")
 load("Data/0_Data.RData")
 
 #------------------------------------------

@@ -8,7 +8,6 @@
 
 library(mixmeta)
 
-setwd("C:/Users/masselpl/Documents/Recherche/2020 - LSHTM/Projects/MCC-HetPoll")
 load("Data/2_FirstStageResults.RData")
 
 #-------------------------------------

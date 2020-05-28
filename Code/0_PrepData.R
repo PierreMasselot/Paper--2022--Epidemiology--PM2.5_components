@@ -8,8 +8,6 @@
 library(tsModel)
 library(colorspace)
 
-setwd("C:/Users/masselpl/Documents/Recherche/2020 - LSHTM/Projects/MCC-HetPoll")
-
 file_head <- "0"
 
 #------------------------------------------
@@ -137,7 +135,6 @@ for(i in seq(nrow(cities))) {
 }
 
 
-
 #---- Exclusion according to a number of criteria
 exclusion <- list()
 # Cities that have less than ny years of consecutive data
@@ -155,6 +152,9 @@ exclusion$NApoll <- sapply(dlist, function(d) mean(is.na(d$mapm))) > propp
 # Cities with a proportion > propt missing PM2.5 data
 propt <- 0.95
 exclusion$NAtemp<- sapply(dlist, function(d) mean(is.na(d$tmean))) > propt
+
+# Cities with no overlap between pollution and SPEC datasets
+exclusion$noOverlap <- sapply(dlist_spec, nrow) == 0
 
 #---- Check excluded cities and perform exclusion
 capture.output(print("Excluded cities because of missing values"),
