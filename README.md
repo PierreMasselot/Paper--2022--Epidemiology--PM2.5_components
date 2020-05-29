@@ -4,17 +4,23 @@ Here is a summary of what I have done so far.
 
 ## Data
 
-For the first stage PM2.5 data, I roughly follow previous approach to clean the data. I exclude cities that have less than two years of pollution data. I also exclude the cities that have a too high proportion of missing data between the first and last valid data.
+For the first stage PM2.5 data, I roughly follow previous approach to clean the data. I exclude cities that have less than one year of pollution data. I also exclude the cities that have a too high proportion of missing data between the first and last valid data.
 
-For the constituent data (SPEC), I hereby use the 10km buffer aggregation since it allows to have a lower proportion of zero values. But overall the results are really similar between the two datasets.
+For the constituent data (SPEC), I hereby use the 10km buffer aggregation since it allows to have a lower proportion of zero values. But overall the results are really similar between the two datasets. 
 
-To harmonize both datasets (pollution and SPEC), I only selected common years between them. This corresponds to years between 2003 and 2017 for which there are PM2.5 values. It significantly reduces the time series length for some countries especially for North American ones (USA and Canada).
+As discussed, I make the hypothesis that pollution is time-invariant. This means that I use all PM2.5 data after 1999 for the first stage, and all constituent data (2003-2017).
 
-![TSlength](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1_TSlength.png)
+Here, I compare the sum of mean concentration of each constituent ofr each country to the mean of observed PM2.5 for each common year. It shows that the constituent sum does not quite add up to the observed level of PM2.5. 
 
-Here, I compare the sum of mean concentration of each constituent ofr each country to the mean of observed PM2.5 for each year. It shows that the constituent sum does not quite add up to the observed level of PM2.5.
+![SpecCountries](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1a_SpecCountries.png)
 
-![SpecCountries](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1_SpecCountries.png)
+Below is the same plot but showing proportions for all years. Overall, there is little variation of proportions within countries from year to years, athough there are few trends. For instance the proportion of DUST seems to increase in Greece while decreasing on Portugal. 
+
+![PropCountries](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_CompCountries.png)
+
+The following plot shows the variation matrix of constituents proportion. This matrix computes the variance of the log-ratios between each constituent. When this variance is high, this means that the two constituents tend to vary in opposite directions (when one increases, it takes the proportion of the other). DUST seems to vary a lot compared to other constituents. This may be explained by its high proportion of zero values, meaning that when DUST is present, all other constituents decrease. We also observe a high variation of black carbon (BC) compared to sea salt (SS) and Nitrate (NIT).
+
+![VariationMat](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_VariationMatrix.png)
 
 ## First stage model
 
@@ -26,14 +32,19 @@ Also, when comparing with the models that account for the maximum data available
 
 ![RR10](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/2bis_RR10.png)
 
-Thus, I finally apply the same parametrization as in NEJM paper for PM2.5, but with a more aggressaive confounding for temperature (DLNM with lags up to 21) and no confounding of humidity since the variable is not always available.
+I finally apply the same parametrization as in NEJM paper for PM2.5, but with no confounding of humidity since the variable is not always available. The confounding of temperature is slightly modified, replacing the 6 degrees of freedom of ns by knots at quantiles 10, 75 and 90 %.
 
 ## Second stage (in progress)
 
-Below, I show the BLUP by applying the meta-regression with both city and country as random effects. As expected, fewer countries display significant RR than in the NEJM paper since less data are used (n.b. 2003 and after).  
+For the second stage, the constituents proportions cannot be used directly as predictors, since they sum to one. This results in a singular matrix and can also lead to spurious correlations as shown by Aitchison in his work.
+I apply the procedure of Martín-Fernández et al. (2003), which goes through the isometric logratio transform. Basically, each constituent is replaced by the logarithm of its value divided by the geometric mean of other constituents. The resulting variables thus represent the variation of the constituent relatively to others. Mathematically, this maps the ratios to a classical euclidean geometry.
 
-![BLUP](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3a_forestplot_country.png)
+Below are the coefficients obtained using mixmeta with the logratios as meta-predictors. With this approach, no constituent seems to signifcantly modify the RR compared to all other.
 
-In the following, I integrate the overall mean of each constituent as fixed-effect meta-predictors. According to this result, only ammonia (NH4) seems to have an aggravating effect.
+![metaComp](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3c_forestplot_logratio.png)
 
-![betaSPEC](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3b_forestplot_betaSPEC.png)
+The advantage of compositional data analysis, is that we can analyze subcompositions, i.e. to check the variation of several constituents compared to others. Below show effect modifications estimated when considering only secondary inorganic components (INOR, which are SO4, NH4 and NIT). This means that we estimate the impact of each compared only to other secondary inorganic components independently to the four other components. In this case, a higher proportion of SO4 seems to lead to higher RRs and conversely, a higher proportion of NH4 to lower RRs. 
+
+The fourth value is the effect of high proportion of secondary inorganic components compared to other components (BC, OC, SS, DUST). And it seems that these components jointly lead to higher RRs.
+
+![metaInor](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3c_forestplot_secondaryInorganic.png)

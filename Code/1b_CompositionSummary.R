@@ -8,6 +8,7 @@
 library(viridis)
 library(compositions)
 library(zCompositions)
+library(corrplot)
 
 load("Data/0_Data.RData")
 
@@ -55,4 +56,16 @@ legend("topleft", spec_names, fill = spec_pal, bty = "n", ncol = 2,
   cex = .8, xpd = T, border = NA)
 
 dev.print(png, filename = "Results/1b_CompCountries.png", 
+  units = "in", res = 100)
+  
+#------------------------------------------
+#       Total variation matrix
+#------------------------------------------
+
+var_mat <- variation(comp_spec) 
+
+x11()
+corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5)
+
+dev.print(png, filename = "Results/1b_VariationMatrix.png", 
   units = "in", res = 100)

@@ -126,12 +126,21 @@ for(i in seq(nrow(cities))) {
   
   # Keep only common years between dlist and dlist_spec
   # N.B. Here I keep incomplete years as well 
-  commonyears <- intersect(unique(dlist[[i]]$year), 
-    dlist_spec[[i]]$year)
-  dlist[[i]] <- dlist[[i]][dlist[[i]]$year %in% 
-    union(addyears, commonyears),]
+#  commonyears <- intersect(unique(dlist[[i]]$year), 
+#    dlist_spec[[i]]$year)
+#  dlist[[i]] <- dlist[[i]][dlist[[i]]$year %in% 
+#    union(addyears, commonyears),]
+#  dlist_spec[[i]] <- dlist_spec[[i]][
+#    dlist_spec[[i]]$year %in% commonyears,]
+  # We consider that pollution does not vary in time for recent years.
+  # Thus we keep all years of species.
+  # However we keep pm2.5 data only post-1999
+  dlist[[i]] <- dlist[[i]][dlist[[i]]$year >= 1999,]
+  
+  # Removing lines containing only zeros in constituens
+  spec_inds <- grep("PM25", colnames(dlist_spec[[i]]))
   dlist_spec[[i]] <- dlist_spec[[i]][
-    dlist_spec[[i]]$year %in% commonyears,]
+    apply(dlist_spec[[i]][,spec_inds] != 0, 1, any),]
 }
 
 
