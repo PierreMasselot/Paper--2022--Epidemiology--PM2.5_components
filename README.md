@@ -51,4 +51,4 @@ The fourth value is the effect of high proportion of secondary inorganic compone
 
 Next, we consider an aggregated composition in which components are gathered in three groups: secondary inorganic pollutants (INOR with SO4, NIT and NH4), organic pollutants (BC and OM) and natural particulate matter (SS and DUST). We want to estimate the effect modification of an increase of each of the two formers compared to the natural group as a baseline. Thus the meta-regression is performed here through the addtive log-ratio transform (ALR) of Aitchison, that divide each component by the last one (natural then) and compute the log. The forestplot is shown below and doesn't suggest any significant effect.
 
-![metaAgg](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3c_forestplot_3c_forestplot_aggregated.png)
+![metaAgg](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3c_forestplot_aggregated.png)
