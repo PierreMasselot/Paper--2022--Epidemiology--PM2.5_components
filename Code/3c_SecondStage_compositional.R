@@ -206,4 +206,55 @@ abline(v = 0)
 
 dev.print(png, filename = "Results/3c_forestplot_secondaryInorganic.png", 
   units = "in", res = 100)
-  
+
+
+#-------------------------------------
+#  "Aggregated" composition
+#------------------------------------- 
+
+agg_names <- c("INOR", "ORGANIC", "NATURAL")
+ 
+agg_comp <- t(sapply(dlist_spec, function(x){
+  # Zero value imputation as in Martín-Fernández et al. (2003)
+  imp <- multRepl(x[,spec_inds], label = 0, dl = rep(1e-5, 7))
+  imp <- cbind(rowSums(imp[,1:3]), rowSums(imp[,4:5]),
+    rowSums(imp[,6:7])) 
+  # Transformation to compositional object
+  xc <- acomp(imp)
+  # Compositional mean (pass through the irl transformation)
+  mean(xc)
+}))
+colnames(agg_comp) <- agg_names
+
+# We consider the component "natural" to be the baseline and thus estimated the effect of two other compared to this one
+#   This leads to consider the alr of Aitchison with "natural" as the basis
+#   Note that this reduce of considering the approach of Aitchison & Bacon-Shone (1984) compared to previously more inline with Hron et al. (2012)
+
+agg_reg <- mixmeta(coefall ~ alr(agg_comp), vcovall, 
+  random = ~ 1|country/city,
+  data = cities, method = "reml", subset = conv)
+
+coef_agg <- coef(agg_reg)[-1]
+se_agg <- sqrt(diag(vcov(agg_reg))[-1])
+lo_agg <- coef_agg - 1.96 * se_agg
+up_agg <- coef_agg + 1.96 * se_agg
+sig_agg <- lo_agg > 0 | up_agg < 0
+
+# Forestplot
+
+x11()
+par(mar = c(5, 10, 4, 2) + .1)  
+plot(coef_agg, -seq_len(2), 
+  xlab = "Meta-regression coefficient", ylab = "",
+  axes = F, xlim = range(c(lo_agg, up_agg)))
+segments(lo_agg, -seq_len(2), up_agg, -seq_len(2), 
+  col = "darkgrey", lwd = 2)
+points(coef_agg, -seq_len(2), cex = ifelse(sig_agg, 1.5, 1), 
+   pch = ifelse(sig_agg, 15, 16))
+axis(1)
+axis(2, at = -seq_len(2), labels = agg_names[1:2], 
+  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
+abline(v = 0)
+
+dev.print(png, filename = "Results/3c_forestplot_aggregated.png", 
+  units = "in", res = 100)
