@@ -62,10 +62,31 @@ dev.print(png, filename = "Results/1b_CompCountries.png",
 #       Total variation matrix
 #------------------------------------------
 
-var_mat <- variation(comp_spec) 
+# On city average
+mean_spec <- aggregate(comp_spec, by = list(city = tot_spec$city),
+  mean.acomp)
+var_mat <- variation(acomp(mean_spec[,-1])) 
 
 x11()
 corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5)
 
 dev.print(png, filename = "Results/1b_VariationMatrix.png", 
   units = "in", res = 100)
+  
+#------------------------------------------
+#       PCA
+#------------------------------------------
+
+# PCA on city average
+pcares <- princomp(mean_spec[,-1])
+
+x11()
+biplot(pcares, xlabs = rep(".", nrow(pcares$scores)), cex = 1.3)
+mtext(sprintf("Explained var = %i%%", 
+  with(pcares, round(100 * sum(sdev[1:2]^2) / sum(sdev^2)))),
+  line = 3, cex = 1.3)
+
+dev.print(png, filename = "Results/1b_PCAbiplot.png", 
+  units = "in", res = 100)
+  
+

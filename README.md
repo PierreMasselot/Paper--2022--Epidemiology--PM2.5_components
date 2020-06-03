@@ -18,9 +18,13 @@ Below is the same plot but showing proportions for all years. Overall, there is 
 
 ![PropCountries](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_CompCountries.png)
 
-The following plot shows the variation matrix of constituents proportion. This matrix computes the variance of the log-ratios between each constituent. When this variance is high, this means that the two constituents tend to vary in opposite directions (when one increases, it takes the proportion of the other). DUST seems to vary a lot compared to other constituents. This may be explained by its high proportion of zero values, meaning that when DUST is present, all other constituents decrease. We also observe a high variation of black carbon (BC) compared to sea salt (SS) and Nitrate (NIT).
+The following plot shows the variation matrix of constituents proportion (averaged by city). This matrix computes the variance of the log-ratios between each constituent. When this variance is high, this means that the two constituents tend to vary in opposite directions (when one increases, it lowers down the proportion of the other). DUST and SS seem to vary a lot compared to other constituents. This may be explained by their high proportion of zero values, meaning that when one of them is present, all other constituents decrease. 
 
 ![VariationMat](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_VariationMatrix.png)
+
+It can also be interesting to do a PCA on proportions. Mainly the two "organic" components (BC and OC) have the same direction, so have NIT and NH4 which are two of the three secondary inorganix aerosols.
+
+![PCA](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_PCAbiplot.png)
 
 ## First stage model
 
