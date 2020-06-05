@@ -18,11 +18,11 @@ Below is the same plot but showing proportions for all years. Overall, there is 
 
 ![PropCountries](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_CompCountries.png)
 
-The following plot shows the variation matrix of constituents proportion (averaged by city). This matrix computes the variance of the log-ratios between each constituent. When this variance is high, this means that the two constituents tend to vary in opposite directions (when one increases, it lowers down the proportion of the other). DUST and SS seem to vary a lot compared to other constituents. This may be explained by their high proportion of zero values, meaning that when one of them is present, all other constituents decrease. 
+The following plot shows the variation matrix of constituents proportion (averaged by city). This matrix computes the variance of the log-ratios between each constituent. When this variance is high, this means that the two constituents tend to vary in opposite directions (when one increases, it lowers down the proportion of the other). DUST and SS seem to vary a lot compared to other constituents, especially compared to NIT for DUST and to BC for SS. This may be explained by their high proportion of zero values, meaning that when one of them is present, all other constituents decrease. In addition, NIT and BC also seem to vary in opposite directions.
 
 ![VariationMat](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_VariationMatrix.png)
 
-It can also be interesting to do a PCA on proportions. Mainly the two "organic" components (BC and OC) have the same direction, so have NIT and NH4 which are two of the three secondary inorganix aerosols.
+It can also be interesting to do a PCA on proportions. The first component seem to mainly contrast SS and DUST to OC and BC. The second contrasts DUST and BC to NH4, NIT and SS.
 
 ![PCA](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/1b_PCAbiplot.png)
 
@@ -56,3 +56,7 @@ The fourth value is the effect of high proportion of secondary inorganic compone
 Next, we consider an aggregated composition in which components are gathered in three groups: secondary inorganic pollutants (INOR with SO4, NIT and NH4), organic pollutants (BC and OM) and natural particulate matter (SS and DUST). We want to estimate the effect modification of an increase of each of the two formers compared to the natural group as a baseline. Thus the meta-regression is performed here through the addtive log-ratio transform (ALR) of Aitchison, that divide each component by the last one (natural then) and compute the log. The forestplot is shown below and doesn't suggest any significant effect.
 
 ![metaAgg](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3c_forestplot_aggregated.png)
+
+Below is the result of regression with the two PCA component described above. And the negative coefficient of the 1st score suggests that lower proportions of SS and DUST compared to BC, OC and NH4 may actually lead to increased risks.
+
+![metaPCA](https://github.com/PierreMasselot/MCC-HetPoll/blob/master/Results/3c_forestplot_pca.png)

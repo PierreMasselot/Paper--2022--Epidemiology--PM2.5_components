@@ -63,9 +63,18 @@ dev.print(png, filename = "Results/1b_CompCountries.png",
 #------------------------------------------
 
 # On city average
-mean_spec <- aggregate(comp_spec, by = list(city = tot_spec$city),
-  mean.acomp)
-var_mat <- variation(acomp(mean_spec[,-1])) 
+mean_comp <- sapply(dlist_spec, function(x){
+  # Zero value imputation as in Martín-Fernández et al. (2003)
+  imp <- multRepl(x[,spec_inds], label = 0, dl = rep(1e-5, 7))
+  # Transformation to compositional object
+  xc <- acomp(imp)
+  # Compositional mean (pass through the irl transformation)
+  mean(xc)
+})
+mean_comp <- t(mean_comp)
+p <- ncol(mean_comp)
+colnames(mean_comp) <- spec_names
+var_mat <- variation(acomp(mean_comp)) 
 
 x11()
 corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5)
@@ -78,7 +87,7 @@ dev.print(png, filename = "Results/1b_VariationMatrix.png",
 #------------------------------------------
 
 # PCA on city average
-pcares <- princomp(mean_spec[,-1])
+pcares <- princomp(acomp(mean_comp))
 
 x11()
 biplot(pcares, xlabs = rep(".", nrow(pcares$scores)), cex = 1.3)
