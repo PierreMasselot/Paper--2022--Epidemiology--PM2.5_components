@@ -12,6 +12,9 @@ library(corrplot)
 
 load("Data/0_Data.RData")
 
+countries_pal <- viridis(nrow(countries))
+countries_pch <- rep_len(15:18, nrow(countries))
+
 #------------------------------------------
 #   SPEC data as compositional object
 #------------------------------------------
@@ -89,11 +92,22 @@ dev.print(png, filename = "Results/1b_VariationMatrix.png",
 # PCA on city average
 pcares <- princomp(acomp(mean_comp))
 
+
+# Put everything on the same scale
+scores <- scale(pcares$scores[,1:2])
+loads <- scale(pcares$loadings[,1:2])
+
 x11()
-biplot(pcares, xlabs = rep(".", nrow(pcares$scores)), cex = 1.3)
-mtext(sprintf("Explained var = %i%%", 
-  with(pcares, round(100 * sum(sdev[1:2]^2) / sum(sdev^2)))),
-  line = 3, cex = 1.3)
+par(mar = c(5, 4, 4, 7) + .1)
+plot(scores, xlim = range(c(scores[,1], loads[,1] * 1.5)),
+  ylim = range(c(scores[,2], loads[,2] * 1.2)),
+  col = countries_pal[as.numeric(droplevels(cities$country))],
+  pch = countries_pch[as.numeric(droplevels(cities$country))]
+)
+arrows(0, 0, loads[,1], loads[,2], lwd = 2, length = .1)
+text(loads * 1.2, labels = spec_names, cex = 1.5)
+legend(par("usr")[2], par("usr")[4], legend = countries$countryname, 
+  col = countries_pal, pch = countries_pch, bty = "n", xpd = T)
 
 dev.print(png, filename = "Results/1b_PCAbiplot.png", 
   units = "in", res = 100)

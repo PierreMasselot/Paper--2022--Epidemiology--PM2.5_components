@@ -262,33 +262,6 @@ dev.print(png, filename = "Results/3c_forestplot_aggregated.png",
 
 
 #-------------------------------------
-#  PC regression
+#  Traffic-related subcomposition
 #------------------------------------- 
 
-pcares <- princomp(acomp(mean_comp))
-
-pca_reg <- mixmeta(coefall ~ pcares$scores[,1:2], vcovall, 
-  random = ~ 1|country/city,
-  data = cities, method = "reml", subset = conv)
-coef_pca <- coef(pca_reg)[-1]
-se_pca <- sqrt(diag(vcov(pca_reg))[-1])
-lo_pca <- coef_pca - 1.96 * se_pca
-up_pca <- coef_pca + 1.96 * se_pca
-sig_pca <- lo_pca > 0 | up_pca < 0
-
-x11()
-par(mar = c(5, 10, 4, 2) + .1)  
-plot(coef_pca, -seq_len(2), 
-  xlab = "Meta-regression coefficient", ylab = "",
-  axes = F, xlim = range(c(lo_pca, up_pca)))
-segments(lo_pca, -seq_len(2), up_pca, -seq_len(2), 
-  col = "darkgrey", lwd = 2)
-points(coef_pca, -seq_len(2), cex = ifelse(sig_pca, 1.5, 1), 
-   pch = ifelse(sig_pca, 15, 16))
-axis(1)
-axis(2, at = -seq_len(2), labels = sprintf("Score %i", 1:2), 
-  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
-abline(v = 0)
-
-dev.print(png, filename = "Results/3c_forestplot_pca.png", 
-  units = "in", res = 100)
