@@ -1,21 +1,21 @@
 [1] "Cities with pollution record"
 
     arg0515     aus8809     bra9711     can8609     can8611     can8615     chi9608     chi9615 chi9615Poll 
-          0           3           0           0           0          25           0           3           0 
+          0           3           0           0           0          19           0           3           0 
     chl0414     col9813     crc0017     cze9415     ecu1418     est9715     fnl9411     fnl9414     fra0010 
-          4           0           0           0           0           3           0           1           0 
+          4           0           0           0           0           1           0           1           0 
     fra0014     ger9315     grc0110     gua0916     irl8407     irn0413     ita0110     ita0615     ita8710 
           0          11           1           0           0           0           0           0           0 
     jap1115     jap7209     jap7212     jap7215     kor9210     kor9215     kor9718     kuw0016     mex9814 
-         47           0           0           0           0           0           0           0           6 
+         37           0           0           0           0           0           0           0           6 
     mld0110    net9516c    net9516r     nor6916     pan1316     par0416     per0814     phi0610     por8012 
           0           0           0           0           0           0           0           0           0 
     por8018     pue0916     rom9416      sa9713     spa9010     spa9014     sui9513     swe9002     swe9010 
-          3           0           0           5           0          20           4           0           1 
+          1           0           0           1           0          18           4           0           1 
     swe9016     swe9805     tha9908     twn9407     twn9414      uk9012      uk9016  uk9016Poll      uk9306 
-          0           0           0           0           3           0           0          31           0 
+          0           0           0           0           3           0           0          25           0 
   uk9306Con     uru1216     usa7306     usa8506     usa8700     vie0913 
-          0           0         209           0           0           0 
+          0           0         136           0           0           0 
 [1] "Excluded cities because of missing values"
 $notEnoughYears
          cityname countryname
@@ -33,100 +33,57 @@ $NAmortality
 
 $NApoll
           cityname countryname
-909        Augusta         USA
 911         Albany         USA
 914      Anchorage         USA
 916       AnnArbor         USA
 919  Atlantic City         USA
-921          Atzec         USA
 923        Buffalo         USA
 925        boulder         USA
-927         Bangor         USA
-929         bergen         USA
-930     Burlington         USA
 933    Brownsville         USA
-940         chatta         USA
-941     charlestWV         USA
 943  Colorado Spri         USA
 946         Canton         USA
 950          davis         USA
 954          Dover         USA
 959  Daytona Beach         USA
-961      El centro         USA
 962        Elkhart         USA
-966          Essex         USA
 968     Evansville         USA
-969        Everett         USA
 970          Fargo         USA
 971          flint         USA
 974        ftmyers         USA
-975       ftpierce         USA
 977       Ft Wayne         USA
-978     Fayetville         USA
 980      green bay         USA
-981     greensburg         USA
-982   Grand heaven         USA
 983  Grand Junctio         USA
-987   Gasinesville         USA
-989         Hicory         USA
 996      Iowa city         USA
-998     Jersy city         USA
 1000     Kalamazoo         USA
-1001       kenosha         USA
 1004   LafayetteIN         USA
 1005   lafayetteLA         USA
 1006  Lake charles         USA
 1007      lakeland         USA
 1008       lancast         USA
 1009       lansing         USA
-1012       LaPorte         USA
-1016         Macon         USA
 1017       mcallen         USA
-1018       middles         USA
 1022       Modesto         USA
 1023     madisonWI         USA
 1025      melbourn         USA
 1028      monmouth         USA
 1030    Montgomery         USA
 1031        Mobile         USA
-1032        Monroe         USA
-1034      marlboro         USA
-1035      Muskegon         USA
 1036        Muncie         USA
-1037  Myrtle Beach         USA
 1038         Nampa         USA
 1039        Nashua         USA
-1040        nassau         USA
-1041         Niles         USA
-1044      newburgh         USA
-1046       newlond         USA
-1048        newark         USA
-1050         ocala         USA
-1055        Ottawa         USA
-1059      Plymouth         USA
 1064       Portage         USA
-1065       portlme         USA
-1069       rochest         USA
-1070     Rockville         USA
 1071       reading         USA
 1072          Reno         USA
 1085  SpringfiedMO         USA
-1087      sarasota         USA
-1089 Saint Charles         USA
 1090      stockton         USA
-1091   Saint Clair         USA
 1092    South bend         USA
-1094      stamford         USA
 1098    Sioux City         USA
 1102   Tallahassee         USA
 1104        Topeka         USA
 1105       trenton         USA
-1106   Terra Haute         USA
 1108       Visalia         USA
-1109     Vancouver         USA
 1110       ventura         USA
 1111       wichita         USA
-1112         weber         USA
 1119          york         USA
 
 $NAtemp
@@ -143,7 +100,7 @@ $noOverlap
 [1] "Final count"
 
    aus8809    can8615    chi9615    chl0414    est9715    fnl9414    ger9315    grc0110    jap1115    mex9814 
-         3         25          3          4          3          1         11          1         46          3 
+         3         19          3          4          1          1         11          1         36          3 
    por8018     sa9713    spa9014    sui9513    swe9010    twn9414 uk9016Poll    usa7306 
-         3          5         17          4          1          3         31        112 
-[1] "Total: 276"
+         1          1         15          4          1          3         25         82 
+[1] "Total: 214"

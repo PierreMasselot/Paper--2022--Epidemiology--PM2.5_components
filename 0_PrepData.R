@@ -63,14 +63,23 @@ for (i in seq_along(flist)){
 ddf_spec <- do.call(rbind, dlist_spec)
 dlist_spec <- split(ddf_spec, f = ddf_spec$city)
 
+# Load indicator data
+load(sprintf("%s/mcc_indicators_20200504.RData", datapath)) # Socio-economic
+load(sprintf("%s/MCC_indicators_UCD_20200504.RData", datapath)) # Environment
+mcc.indicators <- merge(mcc.indicators, final.ucd.mcc, 
+  by.x = "city", by.y = "citiescode")
+
 # Select common cities
 commoncities <- intersect(names(dlist_spec), cities$city)
+commoncities <- Reduce(intersect, 
+  list(names(dlist_spec), cities$city, mcc.indicators$city))
 
 dlist <- dlist[names(dlist) %in% commoncities]
 dlist_spec <- dlist_spec[names(dlist_spec) %in% commoncities]
 dlist_spec <- dlist_spec[names(dlist)]
 cities <- cities[cities$city %in% commoncities,]
 countries <- countries[countries$country %in% cities$country,]
+mcc.indicators <- mcc.indicators[mcc.indicators$city %in% commoncities,]
 
 capture.output(print("Cities with pollution record"), table(cities$country),
   file = "Results/0_cities.txt")
@@ -137,11 +146,19 @@ for(i in seq(nrow(cities))) {
   # However we keep pm2.5 data only post-1999
   dlist[[i]] <- dlist[[i]][dlist[[i]]$year >= 1999,]
   
-  # Removing lines containing only zeros in constituens
+  # Removing lines containing only zeros in constituents
   spec_inds <- grep("PM25", colnames(dlist_spec[[i]]))
   dlist_spec[[i]] <- dlist_spec[[i]][
     apply(dlist_spec[[i]][,spec_inds] != 0, 1, any),]
 }
+
+# Remove badly linked values from MCC indicators
+mcc.indicators$TotPop[mcc.indicators$TotPop.source != 1] <- NA
+mcc.indicators$Density[mcc.indicators$Density.source != 1] <- NA
+mcc.indicators$UrbArea[mcc.indicators$UrbArea.source != 1] <- NA
+mcc.indicators$GreenArea[mcc.indicators$GreenArea.source != 1] <- NA
+mcc.indicators$PopCore[mcc.indicators$PopCore.source != 1] <- NA
+mcc.indicators$Sprawl[mcc.indicators$Sprawl.source != 1] <- NA
 
 
 #---- Exclusion according to a number of criteria
@@ -180,6 +197,7 @@ dlist_spec <- dlist_spec[!excl]
 dlist_orig <- dlist_orig[!excl]
 cities <- cities[!excl,]
 countries <- countries[countries$country %in% cities$country,]
+mcc.indicators <- mcc.indicators[!excl,]
 
 # Final count
 citycount <- table(cities$country)
