@@ -34,7 +34,7 @@ p <- ncol(mean_comp)
 colnames(mean_comp) <- spec_names
 
 #-------------------------------------
-#   Taking scores of MCC indicators
+#   Scores of MCC indicators
 #-------------------------------------
 
 ### Which indicators
@@ -138,13 +138,13 @@ dev.print(png, filename = "Results/3c_forestplot_logratio.png",
 #-------------------------------------
 #  Secondary inorganic aerosol vs other constituents
 #-------------------------------------
-inor_inds <- sapply(c("SO4", "NH4", "NIT"), grep, colnames(dlist_spec[[1]]))
+inor_inds <- sapply(c("SO4", "NH4", "NIT"), grep, spec_names)
 
 # Summing secondary inorganic aerosols
 mean_inor <- sapply(dlist_spec, function(x){
-  xs <- cbind(rowSums(x[,inor_inds]), x[,setdiff(spec_inds, inor_inds)])
   # Zero value imputation as in Martín-Fernández et al. (2003)
-  imp <- multRepl(xs, label = 0, dl = rep(1e-5, 5))
+  imp <- multRepl(x[,spec_inds], label = 0, dl = rep(1e-5, 7))
+  imp <- cbind(rowSums(imp[,inor_inds]), imp[,setdiff(1:7, inor_inds)])
   # Transformation to compositional object
   xc <- acomp(imp)
   # Compositional mean (pass through the irl transformation)
@@ -229,15 +229,17 @@ dev.print(png, filename = "Results/3c_forestplot_secondaryInorganic.png",
 
 #-------------------------------------
 #  "Aggregated" composition
-#------------------------------------- 
+#-------------------------------------
+# As in Hvidtfeldt et al. (2019)
+# Secondary inorganic pollutants, Organic components and Dust 
+# We consider Sea salt as the baseline since it is the only purely natural component 
 
-agg_names <- c("INOR", "ORGANIC", "NATURAL")
+agg_names <- c("INOR", "ORGANIC", "DUST", "SS")
  
 agg_comp <- t(sapply(dlist_spec, function(x){
   # Zero value imputation as in Martín-Fernández et al. (2003)
   imp <- multRepl(x[,spec_inds], label = 0, dl = rep(1e-5, 7))
-  imp <- cbind(rowSums(imp[,1:3]), rowSums(imp[,4:5]),
-    rowSums(imp[,6:7])) 
+  imp <- cbind(rowSums(imp[,1:3]), rowSums(imp[,4:5]), imp[,6:7]) 
   # Transformation to compositional object
   xc <- acomp(imp)
   # Compositional mean (pass through the irl transformation)
@@ -245,16 +247,16 @@ agg_comp <- t(sapply(dlist_spec, function(x){
 }))
 colnames(agg_comp) <- agg_names
 
-# We consider the component "natural" to be the baseline and thus estimated the effect of two other compared to this one
-#   This leads to consider the alr of Aitchison with "natural" as the basis
-#   Note that this reduce of considering the approach of Aitchison & Bacon-Shone (1984) compared to previously more inline with Hron et al. (2012)
+# We consider the component "NATURAL" to be the baseline and thus estimated the effect of two other compared to this one
+#   This leads to consider the alr of Aitchison 
+#   Note that this reduces to considering the approach of Aitchison & Bacon-Shone (1984) 
 
 agg_reg <- mixmeta(coefall ~ alr(agg_comp) + indicator, vcovall, 
   random = ~ 1|country/city,
   data = cities, method = "reml", subset = conv)
 
-coef_agg <- coef(agg_reg)[2:3]
-se_agg <- sqrt(diag(vcov(agg_reg))[2:3])
+coef_agg <- coef(agg_reg)[2:4]
+se_agg <- sqrt(diag(vcov(agg_reg))[2:4])
 lo_agg <- coef_agg - 1.96 * se_agg
 up_agg <- coef_agg + 1.96 * se_agg
 sig_agg <- lo_agg > 0 | up_agg < 0
@@ -263,23 +265,78 @@ sig_agg <- lo_agg > 0 | up_agg < 0
 
 x11()
 par(mar = c(5, 10, 4, 2) + .1)  
-plot(coef_agg, -seq_len(2), 
+plot(coef_agg, -seq_len(3), 
   xlab = "Meta-regression coefficient", ylab = "",
   axes = F, xlim = range(c(lo_agg, up_agg)))
-segments(lo_agg, -seq_len(2), up_agg, -seq_len(2), 
+segments(lo_agg, -seq_len(3), up_agg, -seq_len(3), 
   col = "darkgrey", lwd = 2)
-points(coef_agg, -seq_len(2), cex = ifelse(sig_agg, 1.5, 1), 
+points(coef_agg, -seq_len(3), cex = ifelse(sig_agg, 1.5, 1), 
    pch = ifelse(sig_agg, 15, 16))
 axis(1)
-axis(2, at = -seq_len(2), labels = agg_names[1:2], 
+axis(2, at = -seq_len(3), labels = agg_names[1:3], 
   las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
 abline(v = 0)
 
-dev.print(png, filename = "Results/3c_forestplot_aggregated.png", 
+dev.print(png, filename = "Results/3c_forestplot_aggregated_vsNATURAL.png", 
+  units = "in", res = 100)
+  
+#-- Now instead of considering sea salt, we take the others as baseline
+p <- length(agg_names)
+res_agg2 <- matrix(NA, p, 4, 
+  dimnames = list(agg_names, c("coef", "lo", "up", "sig")))
+for (j in seq_len(p)){
+  design_mat <- ilr(agg_comp[,c(j, setdiff(1:p, j))])
+  metamod <- mixmeta(coefall ~ design_mat + indicator, vcovall, 
+    random = ~ 1|country/city,
+    data = cities, method = "reml", subset = conv)
+  print(metamod)
+  
+  # We store only the first coef
+  res_agg2[j, 1] <- coef(metamod)[2]
+  se_spec <- sqrt(diag(vcov(metamod))[2])
+  res_agg2[j, 2] <- res_agg2[j, 1] - 1.96 * se_spec
+  res_agg2[j, 3] <- res_agg2[j, 1] + 1.96 * se_spec
+  res_agg2[j, 4] <- res_agg2[j, 2] > 0 | res_agg2[j, 3] < 0
+}
+
+# Forest plot
+x11()
+par(mar = c(5, 10, 4, 2) + .1)  
+plot(res_agg2[,1], -seq_len(p), 
+  xlab = "Meta-regression coefficient", ylab = "",
+  axes = F, xlim = range(res_agg2[,2:3]))
+segments(res_agg2[,2], -seq_len(p), res_agg2[, 3], -seq_len(p), 
+  col = "darkgrey", lwd = 2)
+points(res_agg2[,1], -seq_len(p), cex = ifelse(res_agg2[, 4], 1.5, 1), 
+   pch = ifelse(res_agg2[, 4], 15, 16))
+axis(1)
+axis(2, at = -seq_len(p), labels = agg_names, 
+  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
+abline(v = 0)
+
+dev.print(png, filename = "Results/3c_forestplot_aggregated_vsOthers.png", 
   units = "in", res = 100)
 
-
 #-------------------------------------
-#  Traffic-related subcomposition
+#  Fossil-fuel/traffic related subcomposition
 #------------------------------------- 
+# Sulfate originate from sulfur that mainly comes from fossil fuel combustion (power plants)
+# Nitrate is secondary from NOx emission mainly traffic related and gasoline power
+# BC is originate from diesel vehicles and traffic more generally
 
+traffic_comp <- t(sapply(dlist_spec, function(x){
+  # Zero value imputation as in Martín-Fernández et al. (2003)
+  imp <- multRepl(x[,spec_inds], label = 0, dl = rep(1e-5, 7))
+  imp <- cbind(rowSums(imp[,c(1,3:5)]), imp[,c(2, 5:7)]) 
+  # Transformation to compositional object
+  xc <- acomp(imp)
+  # Compositional mean (pass through the irl transformation)
+  mean(xc)
+}))
+colnames(traffic_comp) <- c("TRAFFIC", spec_names[c(2, 5:7)])
+
+# Regression
+traffic_reg <- mixmeta(coefall ~ ilr(traffic_comp) + indicator, vcovall, 
+  random = ~ 1|country/city,
+  data = cities, method = "reml", subset = conv)
+summary(traffic_reg) # Not significant
