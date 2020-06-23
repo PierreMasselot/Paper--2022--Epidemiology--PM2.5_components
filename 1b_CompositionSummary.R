@@ -39,16 +39,19 @@ colnames(comp_spec) <- spec_names
 #   Mean composition per year and country
 #------------------------------------------
 
-agg_spec <- aggregate(comp_spec, 
-  by = list(country = tot_spec$country, year = tot_spec$year),
-  mean.acomp)
+count_split <- split(as.data.frame(imp_spec), 
+  list(country = tot_spec$country, year = tot_spec$year))
+agg_spec <- t(sapply(count_split, function(x) mean(acomp(x))))
+agg_spec_rows <- Reduce(rbind,strsplit(rownames(agg_spec), "\\."))
 
 x11(width = 15, height = 10)
 par(mfrow = n2mfrow(nrow(countries) + 1, asp = 1.5), 
   mar = c(3, 2, 3, 1))
 for (i in seq_len(nrow(countries))){
-  country_dat <- agg_spec[agg_spec$country == countries$country[i], -1]
-  country_dat <- merge(country_dat, 2003:2017, by = 1, all.y = T)
+  country_inds <- agg_spec_rows[,1] == countries$country[i]
+  country_dat <- agg_spec[country_inds,]
+  country_dat <- merge(cbind(as.numeric(agg_spec_rows[country_inds, 2]), country_dat), 
+    2003:2017, by = 1, all.y = T)
   
   bp <- barplot(t(data.matrix(country_dat[,-1])), col = spec_pal, 
     border = NA, names.arg = country_dat[,1], 
