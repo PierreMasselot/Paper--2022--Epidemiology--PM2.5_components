@@ -79,19 +79,18 @@ for (j in seq_len(p)){
 }
 
 # Forestplot
-bord <- order(res_comp[,1], decreasing = T)
 x11()
 par(mar = c(5, 10, 4, 2) + .1)  
-plot(res_comp[bord,1], -seq_len(p), 
+plot(res_comp[,1], -seq_len(p), 
   xlab = "Meta-regression coefficient", ylab = "",
   axes = F, xlim = range(res_comp[,2:3]))
-segments(res_comp[bord,2], -seq_len(p), res_comp[bord, 3], -seq_len(p), 
+segments(res_comp[,2], -seq_len(p), res_comp[, 3], -seq_len(p), 
   col = "darkgrey", lwd = 2)
-points(res_comp[bord,1], -seq_len(p), 
-   col = spec_pal[bord], cex = ifelse(res_comp[bord, 4], 1.5, 1), 
-   pch = ifelse(res_comp[bord, 4], 15, 16))
+points(res_comp[,1], -seq_len(p), 
+   col = spec_pal, cex = ifelse(res_comp[, 4], 1.5, 1), 
+   pch = ifelse(res_comp[, 4], 15, 16))
 axis(1)
-axis(2, at = -seq_len(p), labels = spec_names[bord], 
+axis(2, at = -seq_len(p), labels = spec_names, 
   las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
 abline(v = 0)
 
@@ -102,8 +101,9 @@ dev.print(png, filename = "Results/3e_forestplot_All.png",
 #  Aggregated composition
 #-------------------------------------
 
-agg_inds <- list(INOR = 1:3, CARBON = 4:5, DUST = 6, SS = 7)
+agg_inds <- list(INOR = 1:3, CARBON = 4:5, SS = 6, DUST = 7)
 pa <- length(agg_inds)
+agg_pal <- c("purple", "darkgreen", 5, 7)
 
 # Loop on the constituents to have the isolated contribution of each
 res_agg <- matrix(NA, pa, 4, 
@@ -145,7 +145,7 @@ plot(res_agg[,1], -seq_len(pa),
 segments(res_agg[,2], -seq_len(pa), res_agg[, 3], -seq_len(pa), 
   col = "darkgrey", lwd = 2)
 points(res_agg[,1], -seq_len(pa), 
-   col = spec_pal, cex = ifelse(res_agg[, 4], 1.5, 1), 
+   col = agg_pal, cex = ifelse(res_agg[, 4], 1.5, 1), 
    pch = ifelse(res_agg[, 4], 15, 16))
 axis(1)
 axis(2, at = -seq_len(pa), labels = names(agg_inds), 

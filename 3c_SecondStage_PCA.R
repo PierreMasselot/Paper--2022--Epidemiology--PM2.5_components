@@ -85,7 +85,7 @@ axis(2, at = -seq_len(2), labels = sprintf("Score %i", 1:2),
   las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
 abline(v = 0)
 
-dev.print(png, filename = "Results/3d_forestplot_pca.png", 
+dev.print(png, filename = "Results/3c_forestplot_pca.png", 
   units = "in", res = 100)
 
 
