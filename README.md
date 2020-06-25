@@ -84,7 +84,11 @@ I think it would be too much to report results of both ILR and SLR. The latter m
 ## References cited here
 
 Egozcue, J.J., Pawlowsky-Glahn, V., 2005. Groups of Parts and Their Balances in Compositional Data Analysis. Math Geol 37, 795–828. https://doi.org/10.1007/s11004-005-7381-9
+
 Fišerová, E., Hron, K., 2011. On the Interpretation of Orthonormal Coordinates for Compositional Data. Math Geosci 43, 455. https://doi.org/10.1007/s11004-011-9333-x
+
 Greenacre, M., Grunsky, E.C., Bacon-Shone, J., 2019. A comparison of amalgamation and isometric logratios in compositional data analysis. Preprint.
+
 Hron, K., Filzmoser, P., Thompson, K., 2012. Linear regression with compositional explanatory variables. Journal of Applied Statistics 39, 1115–1128. https://doi.org/10.1080/02664763.2011.644268
+
 Hvidtfeldt, U.A., Geels, C., Sørensen, M., Ketzel, M., Khan, J., Tjønneland, A., Christensen, J.H., Brandt, J., Raaschou-Nielsen, O., 2019. Long-term residential exposure to PM2.5 constituents and mortality in a Danish cohort. Environment International 133, 105268. https://doi.org/10.1016/j.envint.2019.105268
