@@ -69,6 +69,7 @@ for (j in seq_len(p)){
   metamod <- mixmeta(coefall ~ slr + indicator, vcovall, 
     random = ~ 1|country/city,
     data = cities, method = "reml", subset = conv)
+  print(summary(metamod))
   
   # We store the SLR coef
   res_comp[j, 1] <- coef(metamod)[2]

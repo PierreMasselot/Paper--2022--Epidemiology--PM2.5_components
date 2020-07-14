@@ -77,3 +77,4 @@ capture.output(print("Convergence failed"),
   cities[!conv, c("cityname","countryname")],
   file = "Results/2_ConvergenceFailure.txt"
 )
+

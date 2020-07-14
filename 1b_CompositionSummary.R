@@ -61,7 +61,7 @@ plot.new()
 legend("topleft", spec_names, fill = spec_pal, bty = "n", ncol = 2,
   cex = .8, xpd = T, border = NA)
 
-dev.print(png, filename = "Results/1b_CompCountries.png", 
+dev.print(png, filename = "Paper_Figures/Figure1.png", 
   units = "in", res = 100)
   
 #------------------------------------------
@@ -85,11 +85,12 @@ var_mat <- variation(acomp(mean_comp))
 x11()
 corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5)
 
-dev.print(png, filename = "Results/1b_VariationMatrix.png", 
+dev.print(png, filename = "Paper_Figures/Figure2.png", 
   units = "in", res = 100)
   
+
 #------------------------------------------
-#       PCA
+#       PCA to use ?
 #------------------------------------------
 
 # PCA on city average
@@ -115,4 +116,3 @@ legend(par("usr")[2], par("usr")[4], legend = countries$countryname,
 dev.print(png, filename = "Results/1b_PCAbiplot.png", 
   units = "in", res = 100)
   
-

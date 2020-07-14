@@ -78,10 +78,11 @@ Below is the result of regression with the two PCA component described above. Th
 
 ## Conclusion
 
-The results suggest effect modification of NH4 first and then organic components. To date, I havn't found a paper reporting an effect of NH4 specifically, althoug some report effects of secondary inorganic aerosols. Effect of organic components however would be the most consensual result.
-I think it would be too much to report results of both ILR and SLR. The latter makes more sense to me, both intuitively and in the consistency of results. Althoug it is supported by an author of the (small) compositional data literature (Michael Greenacre), they usually prefer ILR.
-
+The results suggest effect modification of NH4 first and then organic components. To date, I havn't found a paper reporting an effect of NH4 specifically, although some report effects of secondary inorganic aerosols. Effect of organic components however would be the most consensual result.
+In the current version of the paper, I chose to report the ILR approach but presented in a different way. I realized that it is equivalent to the first approach proposed by Aitchison and Bacon-Shone (1984) and is thus backed by literature. Although the SLR approach makes sense to me, it is not backed in this context.
 ## References cited here
+
+Aitchison, J., Bacon-Shone, J., 1984. Log contrast models for experiments with mixtures. Biometrika 71, 323–330. https://doi.org/10.1093/biomet/71.2.323
 
 Egozcue, J.J., Pawlowsky-Glahn, V., 2005. Groups of Parts and Their Balances in Compositional Data Analysis. Math Geol 37, 795–828. https://doi.org/10.1007/s11004-005-7381-9
 

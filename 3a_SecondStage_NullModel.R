@@ -12,18 +12,27 @@ setwd("C:/Users/masselpl/Documents/Recherche/2020 - LSHTM/Projects/MCC-HetPoll")
 load("Data/2_FirstStageResults.RData")
 
 #-------------------------------------
-#   Overall association
+#   RRs Summary
 #-------------------------------------
-overall <- mixmeta(coefall ~ 1, S = vcovall, random = ~ 1|city,
-  data = cities, method = "reml", subset = conv)
-  
-cityblup <- blup(overall, vcov = T)
+
+RRs <- sapply(redall,"[[", "allRRfit")
+
+bestcity <- cities[which.min(RRs),]
+worstcity <- cities[which.max(RRs),]
+
+propPos <- mean(RRs > 1)
+propSig <- mean(sapply(redall,"[[", "allRRlow") > 1)
 
 #-------------------------------------
 #   Overall with 2-level grouping
 #-------------------------------------
+
 overall_country <- mixmeta(coefall ~ 1, vcovall, random = ~ 1|country/city,
   data = cities, method = "reml", subset = conv)
+  
+summary(overall_country) # To obain Q and I2 values
+  
+# BLUPs for later ?
 cityblup_country <- blup(overall_country, vcov = T, level = 1, pi = T)
 rownames(cityblup_country) <- cities$countryname[conv]
 country_blup <- exp(unique(cityblup_country))
