@@ -21,8 +21,7 @@ load("Data/2_FirstStageResults.RData")
 #-------------------------------------
 
 spec_inds <- grep("PM25", colnames(dlist_spec[[1]]))
-spec_names <- sapply(strsplit(colnames(dlist_spec[[1]])[spec_inds], "_"),
-  "[", 2)
+spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Mean per city
@@ -60,16 +59,27 @@ indicator <- pca_indic$scores[,1]
 #  All components
 #-------------------------------------
 
-metamod <- mixmeta(coefall ~ alr(mean_comp) + indicator, vcovall, 
+# baseline component
+ibase <- 1
+
+# Model with ALR as meta-predictors
+metamod <- mixmeta(coefall ~ alr(mean_comp, ivar = ibase) + indicator, vcovall, 
   random = ~ 1|country/city,
   data = cities, method = "reml", subset = conv)
   
 summary(metamod) # To obtain Q and I2 statistics
 
-coef_all <- coef(metamod)[2:7]
-coef_all <- c(coef_all, -sum(coef_all)) # beta7 = - sum(beta1, ..., beta6)
-se_all <- sqrt(diag(vcov(metamod))[2:7])
-se_all <- c(se_all, sqrt(sum(vcov(metamod)[2:7,2:7]))) # var(beta7) = sum_j sum_k cov(betaj, betak) (variance of sum of random variables)
+# Coefficient retrieving
+coef_all <- rep(NA, p)
+coef_all[-ibase] <- coef(metamod)[2:7]
+coef_all[ibase] <- -sum(coef_all, na.rm = T) # beta7 = - sum(beta1, ..., beta6)
+
+# Standard errors
+se_all <- rep(NA, p)
+se_all[-ibase] <- sqrt(diag(vcov(metamod))[2:7])
+se_all[ibase] <- sqrt(sum(vcov(metamod)[2:7,2:7])) # var(beta7) = sum_j sum_k cov(betaj, betak) (variance of sum of random variables)
+
+# Confidence intervals
 lo_all <- coef_all - 1.96 * se_all
 up_all <- coef_all + 1.96 * se_all
 sig_all <- lo_all > 0 | up_all < 0

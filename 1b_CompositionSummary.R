@@ -24,8 +24,7 @@ tot_spec <- do.call(rbind, dlist_spec)
 
 #Useful objects for later
 spec_inds <- grep("PM25", colnames(tot_spec))
-spec_names <- sapply(strsplit(colnames(tot_spec)[spec_inds], "_"),
-  "[", 2)
+spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Zeros imputation (/!\ think about it more thoroughly)
@@ -34,6 +33,12 @@ imp_spec <- multRepl(tot_spec[,spec_inds], label = 0, dl = rep(1e-5, 7))
 # Create compositional data object
 comp_spec <- acomp(imp_spec)
 colnames(comp_spec) <- spec_names
+
+#------------------------------------------
+#  Proportion of zeros of each component
+#------------------------------------------
+
+prop_zero <- apply(tot_spec[,spec_inds], 2, function(x) mean(x == 0))
 
 #------------------------------------------
 #   Mean composition per year and country
