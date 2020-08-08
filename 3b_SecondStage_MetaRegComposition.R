@@ -22,6 +22,8 @@ load("Data/2_FirstStageResults.RData")
 
 spec_inds <- grep("PM25", colnames(dlist_spec[[1]]))
 spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
+spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), expression(NO[3]^{"-"}), 
+  "BC", "OC", "SS", "DUST")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Mean per city
@@ -59,7 +61,7 @@ indicator <- pca_indic$scores[,1]
 #  All components
 #-------------------------------------
 
-# baseline component
+# baseline component (actually it doesn't change anything)
 ibase <- 1
 
 # Model with ALR as meta-predictors
@@ -84,8 +86,12 @@ lo_all <- coef_all - 1.96 * se_all
 up_all <- coef_all + 1.96 * se_all
 sig_all <- lo_all > 0 | up_all < 0
 
-# Forestplot
+# We mulitply everything by ln(2) to interpret it as the impact of doubling the relative proportion of the composnents
+coef_all <- log(2) * coef_all
+lo_all <- log(2) * lo_all
+up_all <- log(2) * up_all
 
+# Forestplot 
 x11()
 par(mar = c(5, 10, 4, 2) + .1)  
 plot(coef_all, -seq_len(7), 
@@ -97,11 +103,26 @@ segments(lo_all, -seq_len(7), up_all, -seq_len(7),
 points(coef_all, -seq_len(7), cex = ifelse(sig_all, 1.5, 1), 
    pch = ifelse(sig_all, 15, 16), col = spec_pal)
 axis(1)
-axis(2, at = -seq_len(7), labels = spec_names, 
+axis(2, at = -seq_len(7), labels = spec_labs, 
   las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
 
 dev.print(png, filename = "Paper_Figures/Figure3.png", 
   units = "in", res = 100)
+  
+##################
+#predmat <- matrix(5/42, 7, 7)
+#diag(predmat) <- 2/7
+#colnames(predmat) <- spec_names
+#newdata <- list(mean_comp = rbind(1/7, predmat), indicator = rep(1,8))
+#
+#res <- predict(metamod, newdata)
+#RR <- res[-1] / res[1]
+#
+#plot(RR, -(1:7), pch = 16, col = spec_pal)
+#abline(v = 1)
+#
+#plot(exp(coef_all), -(1:7), pch = 16, col = spec_pal)
+#abline(v = 1)
 
 #-------------------------------------
 #  Aggregated composition NOT IN PAPER

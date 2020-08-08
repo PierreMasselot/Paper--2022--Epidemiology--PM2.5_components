@@ -5,7 +5,6 @@
 #
 #####################################################################
 
-library(viridis)
 library(compositions)
 library(zCompositions)
 library(corrplot)
@@ -25,6 +24,8 @@ tot_spec <- do.call(rbind, dlist_spec)
 #Useful objects for later
 spec_inds <- grep("PM25", colnames(tot_spec))
 spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
+spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), expression(NO[3]^{"-"}), 
+  "BC", "OC", "SS", "DUST")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Zeros imputation (/!\ think about it more thoroughly)
@@ -63,8 +64,8 @@ for (i in seq_len(nrow(countries))){
     main = countries$countryname[i])
 }
 plot.new()
-legend("topleft", spec_names, fill = spec_pal, bty = "n", ncol = 2,
-  cex = .8, xpd = T, border = NA)
+legend("topleft", spec_labs, fill = spec_pal, bty = "n", ncol = 3,
+  cex = 1.8, xpd = NA, border = NA)
 
 dev.print(png, filename = "Paper_Figures/Figure1.png", 
   units = "in", res = 100)
@@ -85,7 +86,8 @@ mean_comp <- sapply(dlist_spec, function(x){
 mean_comp <- t(mean_comp)
 p <- ncol(mean_comp)
 colnames(mean_comp) <- spec_names
-var_mat <- variation(acomp(mean_comp)) 
+var_mat <- variation(acomp(mean_comp))
+colnames(var_mat) <- rownames(var_mat) <- paste(":", spec_labs) 
 
 x11()
 corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5)
