@@ -91,23 +91,41 @@ coef_all <- log(2) * coef_all
 lo_all <- log(2) * lo_all
 up_all <- log(2) * up_all
 
-# Forestplot 
+# Forestplot
 x11()
 par(mar = c(5, 10, 4, 2) + .1)  
 plot(coef_all, -seq_len(7), 
-  xlab = "Meta-regression coefficient", ylab = "",
+  xlab = "Log(RR) increase", ylab = "", cex.lab = 1.3,
   axes = F, xlim = range(c(lo_all, up_all)))
 abline(v = 0)
-segments(lo_all, -seq_len(7), up_all, -seq_len(7), 
-  col = "darkgrey", lwd = 2)
-points(coef_all, -seq_len(7), cex = ifelse(sig_all, 1.5, 1), 
+segments(lo_all, -seq_len(7), up_all, -seq_len(7), lwd = 2,
+  col = grey(.2))
+points(coef_all, -seq_len(7), cex = ifelse(sig_all, 2, 1.5), 
    pch = ifelse(sig_all, 15, 16), col = spec_pal)
-axis(1)
+axis(1, cex.axis = 1.1)
 axis(2, at = -seq_len(7), labels = spec_labs, 
-  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0)
+  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0, cex.axis = 1.3)
 
 dev.print(png, filename = "Paper_Figures/Figure3.png", 
-  units = "in", res = 100)
+  units = "in", res = 200)
+  
+# Alternative forestplot: RR increase
+x11()
+par(mar = c(5, 10, 4, 2) + .1)  
+plot(exp(coef_all), -seq_len(7), 
+  xlab = "Relative Excess Risk", ylab = "", cex.lab = 1.3,
+  axes = F, xlim = range(c(exp(lo_all), exp(up_all))))
+abline(v = 1)
+segments(exp(lo_all), -seq_len(7), exp(up_all), -seq_len(7), lwd = 2,
+  col = grey(.2))
+points(exp(coef_all), -seq_len(7), cex = ifelse(sig_all, 2, 1.5), 
+   pch = ifelse(sig_all, 15, 16), col = spec_pal)
+axis(1, cex.axis = 1.1)
+axis(2, at = -seq_len(7), labels = spec_labs, 
+  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0, cex.axis = 1.3)
+
+dev.print(png, filename = "Paper_Figures/Figure3_RR.png", 
+  units = "in", res = 200)
   
 ##################
 #predmat <- matrix(5/42, 7, 7)
