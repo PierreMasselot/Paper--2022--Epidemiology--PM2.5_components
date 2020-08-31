@@ -4,94 +4,94 @@
           0           3           0           0           0          19           0           3           0 
     chl0414     col9813     crc0017     cze9415     ecu1418     est9715     fnl9411     fnl9414     fra0010 
           4           0           0           0           0           1           0           1           0 
-    fra0014     ger9315     grc0110     gua0916     irl8407     irn0413     ita0110     ita0615     ita8710 
+    fra0014     ger9315     grc0110     gua0916     irl8407     irn0215     irn0413     ita0110     ita0615 
           0          11           1           0           0           0           0           0           0 
-    jap1115     jap7209     jap7212     jap7215     kor9210     kor9215     kor9718     kuw0016     mex9814 
-         37           0           0           0           0           0           0           0           6 
-    mld0110    net9516c    net9516r     nor6916     pan1316     par0416     per0814     phi0610     por8012 
-          0           0           0           0           0           0           0           0           0 
-    por8018     pue0916     rom9416      sa9713     spa9010     spa9014     sui9513     swe9002     swe9010 
-          1           0           0           1           0          18           4           0           1 
-    swe9016     swe9805     tha9908     twn9407     twn9414      uk9012      uk9016  uk9016Poll      uk9306 
-          0           0           0           0           3           0           0          25           0 
-  uk9306Con     uru1216     usa7306     usa8506     usa8700     vie0913 
-          0           0         136           0           0           0 
+    ita8710     jap1115     jap7209     jap7212     jap7215     kor9210     kor9215     kor9718     kuw0016 
+          0          37           0           0           0           0           0           0           0 
+    mex9814     mld0110    net9516c    net9516r     nor6916     nor6918     pan1316     par0416     per0814 
+          6           0           0           0           0           0           0           0           0 
+    phi0610     por8012     por8018     pue0916     rom9416      sa9713     spa9010     spa9014     sui9513 
+          0           0           1           0           0           1           0          18           4 
+    swe9002     swe9010     swe9016     swe9805     tha9908     twn9407     twn9414      uk9012      uk9016 
+          0           1           0           0           0           0           3           0           0 
+ uk9016Poll      uk9306   uk9306Con     uru1216     usa7306     usa8506     usa8700     vie0913 
+         25           0           0           0         136           0           0           0 
 [1] "Excluded cities because of missing values"
 $notEnoughYears
          cityname countryname
-303       Tottori       Japan
-461 Ciudad Juarez      Mexico
-628      A Coruna       Spain
-638       Caceres       Spain
-666     Salamanca       Spain
+305       Tottori       Japan
+463 Ciudad Juarez      Mexico
+631      A Coruna       Spain
+641       Caceres       Spain
+669     Salamanca       Spain
 
 $NAmortality
      cityname countryname
-928     Boise         USA
-991  honolulu         USA
-1038    Nampa         USA
+931     Boise         USA
+994  honolulu         USA
+1041    Nampa         USA
 
 $NApoll
           cityname countryname
-911         Albany         USA
-914      Anchorage         USA
-916       AnnArbor         USA
-919  Atlantic City         USA
-923        Buffalo         USA
-925        boulder         USA
-933    Brownsville         USA
-943  Colorado Spri         USA
-946         Canton         USA
-950          davis         USA
-954          Dover         USA
-959  Daytona Beach         USA
-962        Elkhart         USA
-968     Evansville         USA
-970          Fargo         USA
-971          flint         USA
-974        ftmyers         USA
-977       Ft Wayne         USA
-980      green bay         USA
-983  Grand Junctio         USA
-996      Iowa city         USA
-1000     Kalamazoo         USA
-1004   LafayetteIN         USA
-1005   lafayetteLA         USA
-1006  Lake charles         USA
-1007      lakeland         USA
-1008       lancast         USA
-1009       lansing         USA
-1017       mcallen         USA
-1022       Modesto         USA
-1023     madisonWI         USA
-1025      melbourn         USA
-1028      monmouth         USA
-1030    Montgomery         USA
-1031        Mobile         USA
-1036        Muncie         USA
-1038         Nampa         USA
-1039        Nashua         USA
-1064       Portage         USA
-1071       reading         USA
-1072          Reno         USA
-1085  SpringfiedMO         USA
-1090      stockton         USA
-1092    South bend         USA
-1098    Sioux City         USA
-1102   Tallahassee         USA
-1104        Topeka         USA
-1105       trenton         USA
-1108       Visalia         USA
-1110       ventura         USA
-1111       wichita         USA
-1119          york         USA
+914         Albany         USA
+917      Anchorage         USA
+919       AnnArbor         USA
+922  Atlantic City         USA
+926        Buffalo         USA
+928        boulder         USA
+936    Brownsville         USA
+946  Colorado Spri         USA
+949         Canton         USA
+953          davis         USA
+957          Dover         USA
+962  Daytona Beach         USA
+965        Elkhart         USA
+971     Evansville         USA
+973          Fargo         USA
+974          flint         USA
+977        ftmyers         USA
+980       Ft Wayne         USA
+983      green bay         USA
+986  Grand Junctio         USA
+999      Iowa city         USA
+1003     Kalamazoo         USA
+1007   LafayetteIN         USA
+1008   lafayetteLA         USA
+1009  Lake charles         USA
+1010      lakeland         USA
+1011       lancast         USA
+1012       lansing         USA
+1020       mcallen         USA
+1025       Modesto         USA
+1026     madisonWI         USA
+1028      melbourn         USA
+1031      monmouth         USA
+1033    Montgomery         USA
+1034        Mobile         USA
+1039        Muncie         USA
+1041         Nampa         USA
+1042        Nashua         USA
+1067       Portage         USA
+1074       reading         USA
+1075          Reno         USA
+1088  SpringfiedMO         USA
+1093      stockton         USA
+1095    South bend         USA
+1101    Sioux City         USA
+1105   Tallahassee         USA
+1107        Topeka         USA
+1108       trenton         USA
+1111       Visalia         USA
+1113       ventura         USA
+1114       wichita         USA
+1122          york         USA
 
 $NAtemp
             cityname countryname
-461    Ciudad Juarez      Mexico
-466  Puebla-Tlaxcala      Mexico
-469  Toluca de Lerdo      Mexico
-1038           Nampa         USA
+463    Ciudad Juarez      Mexico
+468  Puebla-Tlaxcala      Mexico
+471  Toluca de Lerdo      Mexico
+1041           Nampa         USA
 
 $noOverlap
 [1] cityname    countryname

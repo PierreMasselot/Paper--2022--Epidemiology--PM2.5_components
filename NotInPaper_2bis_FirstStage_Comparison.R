@@ -24,11 +24,6 @@ colnames(qaicres) <- colnames(gcvres) <- colnames(RRres) <-
   c("NEJM", "Unconstrained", 
   "Nonlinear", "Both", "NoHum", "Temp21", "Before2003")
 
-QAIC <- function(model) {
-  phi <- summary(model)$dispersion
-	loglik <- sum(dpois(model$y, model$fitted.values, log=TRUE))
-  return(-2*loglik + 2*summary(model)$df[3]*phi)
-}
 
 #-------------------------------------
 # Loop on cities

@@ -8,17 +8,13 @@
 library(tsModel)
 library(colorspace)
 
-file_head <- "0"
-
 #------------------------------------------
 # Load data and keep cities with records
 #------------------------------------------
 
 # Load pollution data
-datapath <- "C:/Users/masselpl/Documents/Recherche/2020 - LSHTM/Data/MCC"
-
-load(sprintf("%s/MCCdata_Pollution_20200110.RData", datapath))
-citiespoll <- read.csv(sprintf("%s/Metadatamccfinal20200110.csv", datapath))
+load("Data/MCCdata_Pollution_20200504.RData")
+citiespoll <- read.csv("Data/Metadatamccfinal20200504.csv")
 
 # Keep only cities that have an air pollution record
 subcities <- as.character(citiespoll[,2])
@@ -26,8 +22,8 @@ subcities <- as.character(citiespoll[,2])
 dlist <- dlist[cities$city %in% subcities]
 cities <- cities[cities$city %in% subcities,]
 
-subcoutries <- as.character(unique(cities$country))
-countries <- countries[countries$country %in% subcoutries,]
+subcountries <- as.character(unique(cities$country))
+countries <- countries[countries$country %in% subcountries,]
 
 # Then keep only cities with a PM2.5 record
 citiespm25 <- citiespoll$pm25 == TRUE
@@ -40,8 +36,9 @@ countries <- countries[countries$country %in% subcountries,]
 
 # Keep only some codes for each country (ask Francesco)
 subcountry <- sort(c("aus8809","can8615","chi9615","chl0414", "est9715","fnl9414",
-  "ger9315", "grc0110", "jap1115","mex9814", "por8018", "rom9416","sa9713", "spa9014",
-  "sui9513","swe9010","twn9414","uk9016Poll","usa7306"))
+  "ger9315", "grc0110", "jap1115","mex9814", "nor6918", "per0814", "por8018", 
+  "rom9416","sa9713", "spa9014", "sui9513","swe9010","twn9414","uk9016Poll",
+  "usa7306"))
 
 dlist <- dlist[cities$country %in% subcountry]
 cities <- cities[cities$country %in% subcountry,]
@@ -50,13 +47,11 @@ countries <- countries[countries$country %in% subcountry,]
 # Load PM constituent data
 fexp <- "PM2\\.5_SPEC_10km_buffer_[0-9]{4}"
 #fexp <- "PM2\\.5_SPEC_[0-9]{4}"
-flist <- list.files(sprintf("%s/MCC_PM_SPEC_New", datapath), 
-  pattern = fexp)
+flist <- list.files("Data/MCC_PM_SPEC_New", pattern = fexp)
 dlist_spec <- vector("list", length(flist))
 names(dlist_spec) <- as.character(2003:2017)
 for (i in seq_along(flist)){
-  dlist_spec[[i]] <- read.csv(sprintf("%s/MCC_PM_SPEC_New/%s", 
-    datapath, flist[i]))
+  dlist_spec[[i]] <- read.csv(sprintf("Data/MCC_PM_SPEC_New/%s", flist[i]))
   dlist_spec[[i]]$year <- names(dlist_spec)[i]
   rownames(dlist_spec[[i]]) <- NULL  
 }
@@ -64,8 +59,8 @@ ddf_spec <- do.call(rbind, dlist_spec)
 dlist_spec <- split(ddf_spec, f = ddf_spec$city)
 
 # Load indicator data
-load(sprintf("%s/mcc_indicators_20200504.RData", datapath)) # Socio-economic
-load(sprintf("%s/MCC_indicators_UCD_20200504.RData", datapath)) # Environment
+load("Data/mcc_indicators_20200504.RData") # Socio-economic
+load("Data/MCC_indicators_UCD_20200504.RData") # Environment
 mcc.indicators <- merge(mcc.indicators, final.ucd.mcc, 
   by.x = "city", by.y = "citiescode")
 
