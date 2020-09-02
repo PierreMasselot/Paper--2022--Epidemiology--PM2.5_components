@@ -39,6 +39,9 @@ mean_comp <- t(mean_comp)
 p <- ncol(mean_comp)
 colnames(mean_comp) <- spec_names
 
+# Transforming as ALR
+alr_comp <- alr(mean_comp)
+
 #-------------------------------------
 #   Scores of MCC indicators
 #-------------------------------------
@@ -61,11 +64,8 @@ indicator <- pca_indic$scores[,1]
 #  All components
 #-------------------------------------
 
-# baseline component (actually it doesn't change anything)
-ibase <- 1
-
 # Model with ALR as meta-predictors
-metamod <- mixmeta(coefall ~ alr(mean_comp, ivar = ibase) + indicator, vcovall, 
+metamod <- mixmeta(coefall ~ alr_comp + indicator, vcovall, 
   random = ~ 1|country/city,
   data = cities, method = "reml", subset = conv)
   
@@ -73,13 +73,13 @@ summary(metamod) # To obtain Q and I2 statistics
 
 # Coefficient retrieving
 coef_all <- rep(NA, p)
-coef_all[-ibase] <- coef(metamod)[2:7]
-coef_all[ibase] <- -sum(coef_all, na.rm = T) # beta7 = - sum(beta1, ..., beta6)
+coef_all[-p] <- coef(metamod)[2:p]
+coef_all[p] <- -sum(coef_all, na.rm = T) # beta7 = - sum(beta1, ..., beta6)
 
 # Standard errors
 se_all <- rep(NA, p)
-se_all[-ibase] <- sqrt(diag(vcov(metamod))[2:7])
-se_all[ibase] <- sqrt(sum(vcov(metamod)[2:7,2:7])) # var(beta7) = sum_j sum_k cov(betaj, betak) (variance of sum of random variables)
+se_all[-p] <- sqrt(diag(vcov(metamod))[2:p])
+se_all[p] <- sqrt(sum(vcov(metamod)[2:p,2:p])) # var(beta7) = sum_j sum_k cov(betaj, betak) (variance of sum of random variables)
 
 # Confidence intervals
 lo_all <- coef_all - 1.96 * se_all
@@ -138,55 +138,144 @@ cseq <- seq(.01, .99, by = .01)
 # Overall mean of composition
 ov_mean <- mean(acomp(mean_comp))
 
-# Compute predictions 
-#preds <- sapply(coef_all, function(b){
-#  exp(log(cseq) * b / log(2))
-#})
-
-# Compute confience limits
-#plo <- sapply(lo_all, function(b){
-#  exp(log(cseq) * b / log(2))
-#})
-#pup <- sapply(up_all, function(b){
-#  exp(log(cseq) * b / log(2))
-#})
+# Prepare prediction data.frame
+newdat <- data.frame(indicator = rep(0, length(cseq)))
 
 # Prepare objects to store predictions and confidence limits
 preds <- plo <- pup <- matrix(NA, length(cseq), p)
 for (j in seq_len(p)){
   # Create a compositional grid. The component of interests varies from 0 to 1 (excluded) and the other are taken as the overall mean adjusted for closure while keeping the subcomposition constant
-  adj_mean <- sapply(ov_mean[-j] / sum(ov_mean[-j]), "*", 1 - cseq)
-  xj <- cbind(cseq, adj_mean)
+  xj <- matrix(NA, length(cseq), p, dimnames = list(NULL, spec_names))
+  xj[,-j] <- sapply(ov_mean[-j] / sum(ov_mean[-j]), "*", 1 - cseq)
+  xj[,j] <- cseq
   
-  # Predictions with these data
-  bj <- c(coef_all[j], coef_all[-j]) / log(2)
-  preds[,j] <- log(xj) %*% bj + coef(metamod)[1]
+  # Transform by ALR and add to the newdat data.frame
+  newdat$alr_comp <- alr(xj)
   
-  # Confidence limits
-  blj <- c(lo_all[j], coef_all[-j]) / log(2)
-  plo[,j] <- log(xj) %*% blj + coef(metamod)[1]
-  buj <- c(up_all[j], coef_all[-j]) / log(2)
-  pup[,j] <- log(xj) %*% buj + coef(metamod)[1]
+  # Make predictions
+  pred_obj <- predict(metamod, newdata = newdat, ci = T)
+  
+  # Store predictions and prediction intervals only in the range of observed values
+  obs_rng <- range(mean_comp[,j])
+  is_obs <- cseq >= obs_rng[1] & cseq <= obs_rng[2]
+  
+  preds[is_obs,j] <- exp(pred_obj[is_obs,1])
+  plo[is_obs,j] <- exp(pred_obj[is_obs,2])
+  pup[is_obs,j] <- exp(pred_obj[is_obs,3])
 }
 
-#--- Plot all prediction together ----
-x11()
-# Create empty plot
-plot(0, 0, col = "white", xlim = c(0,1), ylim = exp(c(min(plo), max(pup))), 
-  xlab = "Component proportion", ylab = "RR")
-# add polygons for confidence intervals
+#--- Plot all predictions in different panels ----
+# Panel matrix
+pm <- matrix(rep(c(1:6, 0, 7, 0), each = 2), nrow = 3, byrow = T)
+
+# Plot
+x11(height = 10, width = 10)
+par(mar = c(5, 4, 3, 1), cex.main = 1.5, cex.lab = 1.2)
+layout(pm)
 for (j in seq_len(p)){
-  polygon(c(cseq, rev(cseq)), exp(c(plo[,j], rev(pup[,j]))), 
+  # Initiate an empty plot with labels
+  plot(0, 0, col = NA, xlim = 100 * range(mean_comp), 
+    ylim = c(min(plo, na.rm = T), max(pup, na.rm = T)),
+    ylab = "RR", xlab = "Proportion (%)",
+    main = bquote(bold(.(spec_labs[j][[1]]))))
+  # Draw prediction interval
+  nona <- !is.na(preds[,j])
+  polygon(100 * c(cseq[nona], rev(cseq[nona])), c(plo[nona,j], rev(pup[nona,j])), 
     col = adjustcolor(spec_pal[j], .2), border = NA)
+  # Add prediction
+  lines(100 * cseq, preds[,j], lty = 1, lwd = 2, col = spec_pal[j])
+  abline(h = 1)
 }
-# Add predictions
-matlines(cseq, exp(preds), lty = 1, lwd = 2, col = spec_pal)
-abline(h = 1)
-legend("topleft", spec_labs, fill = spec_pal, border = NA, bty = "n", ncol = 2)
 
 dev.print(png, filename = "Results/3_RRpredictions.png", 
-  units = "in", res = 200)
+  units = "in", res = 100)
+dev.print(pdf, file = "Results/3_RRpredictions.pdf")
 
 #-------------------------------------
 #  Ternary plot
 #-------------------------------------
+
+# Parameters
+tern_comp <- c(2, 3, 7) # Which components
+res <- 40 # resolution of the plot
+
+colpal <- colorRampPalette(c("blue", "white", "red"))
+
+#
+#
+## Create grid
+#cgrid <- expand.grid(replicate(3, seq(.01, .99, length.out = res), simplify = F))
+#cgrid <- cgrid[rowSums(cgrid) < 1,]
+#
+## keep only cases that could have been observed
+#is_obs <- mapply(function(g, rng) g >= rng[1] & g <= rng[2],
+#  cgrid, as.data.frame(crngs))
+#cgrid <- cgrid[apply(is_obs, 1, all),]
+
+# Create function to predict for Ternary plot
+tern_pred <- function(c1, c2, c3, tern_comp, p, ov_mean, metamod, cols){
+  # Reduce the chosen components to their average composition
+  cgrid <- cbind(c1, c2, c3) * sum(ov_mean[tern_comp])
+  
+  # Initiate data  
+  xc <- matrix(NA, nrow = nrow(cgrid), p, dimnames = list(NULL, spec_names))
+  xc[,tern_comp] <- data.matrix(cgrid)
+    
+  # Add other components overall mean
+  xc[,-tern_comp] <- t(replicate(nrow(cgrid), ov_mean[-tern_comp]))
+    
+  # Predictions
+  newdat <- data.frame(indicator = rep(0, nrow(cgrid)))
+  newdat$alr_comp <- alr(xc)
+  tern_preds <- predict(metamod, newdat)
+  
+  # Create color
+  maxpred <- max(tern_preds, na.rm = T)
+  
+  colpred <- cols[cut(tern_preds, 
+    breaks = seq(-maxpred, maxpred, length.out = length(cols) + 1))
+  ]
+  attr(colpred, "predictions") <- tern_preds
+  colpred
+}
+
+tern_values <- TernaryPointValues(tern_pred, direction = 1,
+  tern_comp = tern_comp, p = p, ov_mean = ov_mean, metamod = metamod,
+  cols = colpal(20), resolution = 100)
+
+# Observed compositions
+crngs <- apply(mean_comp[,tern_comp], 2, range)
+TPVgrid <- XYToTernary(as.numeric(tern_values[1,]), as.numeric(tern_values[2,]))
+
+is_obs <- mapply(function(g, rng) g >= rng[1] & g <= rng[2],
+  as.data.frame(t(TPVgrid)), as.data.frame(crngs))
+  
+tern_values[3, !apply(is_obs, 1, all)] <- NA
+
+#----- Plot ternary diagram with predictions -----
+par(mar = c(5, 4, 4, 7) + .1)
+TernaryPlot(alab = spec_labs[tern_comp[1]], blab = spec_labs[tern_comp[2]],
+  clab = spec_labs[tern_comp[3]], lab.col = spec_pal[tern_comp],
+  grid.col = "white", grid.minor.col = "white")
+ColourTernary(tern_values, spectrum = NULL)
+
+# Adding the color scale
+coords <- XYToTernary(as.numeric(tern_values[1,]), as.numeric(tern_values[2,]))
+real_pred <- attr(tern_pred(coords[1,], coords[2,], coords[3,], 
+  tern_comp = tern_comp, p = p, ov_mean = ov_mean, metamod = metamod,
+  cols = colpal(20)), "predictions")
+maxpred <- max(real_pred)
+image.plot(zlim = exp(c(-maxpred, maxpred)), col = colpal(20), 
+  legend.only = T)
+mtext("RR", side = 3, at = par("usr")[2] + .2, xpd = T, cex = 1.5, line = -1)
+
+dev.print(png, filename = "Results/3_TernaryPredictions.png", 
+  units = "in", res = 100)
+dev.print(pdf, file = "Results/3_TernaryPredictions.pdf")
+
+#-------------------------------------
+#  Diagnostics
+#-------------------------------------
+
+# Check interval fo the estimates of variances
+# According to the book of Bates, we shouldn't add a random effect for city since we don't have replications.
