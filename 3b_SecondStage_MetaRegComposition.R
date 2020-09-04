@@ -9,7 +9,6 @@
 # Here I simply consider the approach of Aitchison & Bacon-Shone (1984)
 # It consists in transforming the constituents with ALR and using them in a regression model.
 
-
 library(mixmeta)
 library(compositions)
 library(zCompositions)
@@ -274,8 +273,46 @@ dev.print(png, filename = "Results/3_TernaryPredictions.png",
 dev.print(pdf, file = "Results/3_TernaryPredictions.pdf")
 
 #-------------------------------------
-#  Diagnostics
+#  Comparison with nested models
 #-------------------------------------
 
-# Check interval fo the estimates of variances
-# According to the book of Bates, we shouldn't add a random effect for city since we don't have replications.
+# Apply model with only indicator PC
+metaindic <- mixmeta(coefall ~ indicator, vcovall, 
+  random = ~ 1|country/city,
+  data = cities, method = "reml", subset = conv)
+
+# Apply null model: no meta-predictor
+metanull <- mixmeta(coefall, vcovall, random = ~ 1|country/city,
+  data = cities, method = "reml", subset = conv)
+
+allmodels <- list(full = metamod, indic = metaindic, null = metanull)
+
+#--- create comparison table ---
+compar_tab <- data.frame(
+  qstat = sapply(allmodels, function(x) summary(x)$qstat$Q),
+  i2stat = sapply(allmodels, function(x) summary(x)$i2stat)
+)
+
+# F-test between nested models
+ftest <- function(full, null){
+  rssf <- sum(residuals(full)^2)
+  pfu <- full$rank
+  rssn <- sum(residuals(null)^2)
+  pn <- null$rank
+  fstat <- ((rssn - rssf) / (pfu - pn)) / (rssf / full$df.residual)
+  pval <- 1 - pf(fstat, pfu - pn, full$df.residual)
+  return(list(fstat = fstat, pvalue = pval))
+}
+
+full_F <- ftest(metamod, metaindic)
+indic_F <- ftest(metaindic, metanull)
+
+# Add to the table
+compar_tab$Fstat <- c(full_F$fstat, indic_F$fstat, NA)
+compar_tab$Fpvalue <- c(full_F$pvalue, indic_F$pvalue, NA)
+
+
+
+# Compare Q and I2 statistics as mentionned by Antonio in the manuscript
+
+# likelihood ratio test as in p. 97 of Pinheiro & Bates (or rather F test for fixed effects)
