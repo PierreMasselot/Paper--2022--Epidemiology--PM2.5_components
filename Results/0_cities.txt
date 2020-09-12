@@ -97,10 +97,27 @@ $noOverlap
 [1] cityname    countryname
 <0 lignes> (ou 'row.names' de longueur nulle)
 
+$missingMCCindicators
+            cityname countryname
+94          Victoria      Canada
+139       Valparaiso       Chile
+277             Kofu       Japan
+468  Puebla-Tlaxcala      Mexico
+637           Bilbao       Spain
+638        Barcelona       Spain
+675         Tenerife       Spain
+764        Kaohsiung      Taiwan
+852          Bristol          UK
+939      CedarRapids         USA
+1008     lafayetteLA         USA
+1056           Omaha         USA
+1060         Phoenix         USA
+1082        SaltLake         USA
+
 [1] "Final count"
 
    aus8809    can8615    chi9615    chl0414    est9715    fnl9414    ger9315    grc0110    jap1115    mex9814 
-         3         19          3          4          1          1         11          1         36          3 
+         3         18          3          3          1          1         11          1         35          3 
    por8018     sa9713    spa9014    sui9513    swe9010    twn9414 uk9016Poll    usa7306 
-         1          1         15          4          1          3         25         82 
-[1] "Total: 214"
+         1          1         12          4          1          2         24         78 
+[1] "Total: 202"

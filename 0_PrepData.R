@@ -6,7 +6,6 @@
 #####################################################################
 
 library(tsModel)
-library(colorspace)
 
 #------------------------------------------
 # Load data and keep cities with records
@@ -63,7 +62,7 @@ load("Data/mcc_indicators_20200504.RData") # Socio-economic
 load("Data/MCC_indicators_UCD_20200504.RData") # Environment
 mcc.indicators <- merge(mcc.indicators, final.ucd.mcc, 
   by.x = "city", by.y = "citiescode")
-
+  
 # Select common cities
 commoncities <- intersect(names(dlist_spec), cities$city)
 commoncities <- Reduce(intersect, 
@@ -96,12 +95,6 @@ for (i in seq_len(nrow(cities))){
   
   # Define PM moving average
   dlist[[i]]$mapm <- runMean(dlist[[i]]$pm25, 0:pmL)
-  
-  # Define trimmed pm2.5
-  quants <- quantile(dlist[[i]]$pm25, c(trim, 1 - trim), na.rm = T)
-  dlist[[i]]$tpm25 <- dlist[[i]]$pm25
-  dlist[[i]]$tpm25[dlist[[i]]$tpm25 < quants[1] | 
-    dlist[[i]]$tpm25 > quants[2]] <- NA
     
   # PM2.5 annual mean in the PM constituents dataset
   annmean <- aggregate(dlist[[i]]$pm25, 
@@ -176,6 +169,13 @@ exclusion$NAtemp<- sapply(dlist, function(d) mean(is.na(d$tmean))) > propt
 
 # Cities with no overlap between pollution and SPEC datasets
 exclusion$noOverlap <- sapply(dlist_spec, nrow) == 0
+
+# Incomplete data on MCC indicators
+# Density has too much NAs
+# For the UCD indicators, we take both the 2000 and 2014/2015 ones
+indic_names <- c("oldpopprop", "GDP", "Poverty", "avgtmean", 
+  "totalrange", "E_GR_AV00", "E_GR_AV14", "B00", "B15")
+exclusion$missingMCCindicators <- !complete.cases(mcc.indicators[,indic_names])
 
 #---- Check excluded cities and perform exclusion
 capture.output(print("Excluded cities because of missing values"),
