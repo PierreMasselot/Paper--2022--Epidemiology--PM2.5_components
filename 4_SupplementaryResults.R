@@ -189,3 +189,38 @@ res_sort <- order(residuals(metamod))
 cities[res_sort[1:3],]
 # Positive residuals
 cities[res_sort[nrow(cities) - 0:2],]
+
+
+#-------------------------------------
+# Predictions for a single city
+#-------------------------------------
+
+# Find the city with the composition the closest to the overall mean
+distToMean <- dist(acomp(rbind(ov_mean, mean_comp)))
+closest_city <- which.min(distToMean[1:nrow(mean_comp)])
+
+# Extract composition
+cit_comp <- dlist_spec[[closest_city]][,spec_inds]
+# Impute zero values
+cit_comp <- multRepl(cit_comp, label = 0, dl = rep(1e-5, 7))
+
+# Create data matrix
+cit_dat <- data.frame(indicator = rep(0, nrow(cit_comp)))
+cit_dat$alr_comp <- alr(acomp(cit_comp))
+
+# Prediction
+cit_pred <- exp(predict(metamod, newdata = cit_dat, ci = T)) + 
+  blup(metamod, type = "residual")[closest_city] 
+
+# plot the predictions
+x11()
+plot(cit_pred[,1], pch = 16, xlab = "Year", ylab = "RR", xaxt = "n", 
+  ylim = range(cit_pred))
+segments(x0 = 1:nrow(cit_dat), y0 = cit_pred[,2], y1 = cit_pred[,3])
+abline(h = 1)
+axis(1, at = 1:nrow(cit_dat), 
+  labels = substr(rownames(dlist_spec[[closest_city]]), 1, 4))
+  
+dev.print(png, filename = "Results/pred_BatonRouge.png", 
+  units = "in", res = 200)
+dev.print(pdf, file = "Results/pred_BatonRouge.pdf")
