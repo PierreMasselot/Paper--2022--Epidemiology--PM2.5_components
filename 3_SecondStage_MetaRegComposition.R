@@ -52,18 +52,18 @@ alr_comp <- alr(mean_comp)
 indic_form <- sprintf("~ %s", paste(indic_names, collapse = " + "))
 
 # PCA
-pca_indic <- princomp(as.formula(indic_form), data = mcc.indicators,
-  na.action = na.exclude)
+pca_indic <- prcomp(as.formula(indic_form), data = mcc.indicators,
+  na.action = na.exclude, scale. = T)
 # screeplot(pca_indic)
-# The first component accounts for 99% of the variance
-indicator <- pca_indic$scores[,1]
+# The first two components account for 58% of the variance
+indicators <- pca_indic$x[,1:2]
 
 #-------------------------------------
 #  Main meta-regression model
 #-------------------------------------
 
 # Model with ALR as meta-predictors
-metamod <- mixmeta(coefall ~ alr_comp + indicator, vcovall, 
+metamod <- mixmeta(coefall ~ alr_comp + indicators, vcovall, 
   random = ~ 1|country/city,
   data = cities, method = "reml", subset = conv)
   
@@ -84,6 +84,52 @@ cities[which.min(BLUPall),]
 sum(BLUPall > 1)
 
 #-------------------------------------
+# Figure 1: Map with BLUPS
+#-------------------------------------
+
+# Compute average PM2.5
+mean_pm <- sapply(dlist, function(d) mean(d$pm25, na.rm = T))
+
+# Create colorscale based on RR
+cutoff <- seq(0.975, 1.025, by = 0.005)
+labels <- paste0(paste0(cutoff[-length(cutoff)], "-", cutoff[-1]))
+citycat <- cut(BLUPall, cutoff, labels = labels, include.lowest = T)
+pal <- tim.colors(length(labels))
+
+# Create point size based on mean PM2.5
+ptsiz_rng <- c(.5, 2.5)
+mean_scale <- (mean_pm - min(mean_pm)) / (diff(range(mean_pm)))
+pt_size <- mean_scale * diff(ptsiz_rng) + ptsiz_rng[1]
+pm_scale <- pretty(mean_pm)
+size_scale <- (pm_scale - min(mean_pm)) / (diff(range(mean_pm))) * 
+  diff(ptsiz_rng) + ptsiz_rng[1]
+
+#---- Draw map
+x11(width = 10)
+map("worldHires", mar=c(0,0,0,0), col = grey(0.95),
+    myborder = 0, fill = T, border = grey(0.5), lwd = 0.3)
+# Add points with size = RR and colorscale for mean PM2.5
+points(cities$long, cities$lat, pch = 21, cex = pt_size, bg = pal[citycat])
+# Scale and legend
+map.scale(-5, -50, ratio = F, cex = 0.7, relwidth = 0.1)
+rect(par("usr")[1], 45, -129, -70, border = NA, col = "white")
+lg <- legend(-175, 47, labels, pt.cex = 1.2, bg = "white",
+             pch = 21, pt.bg = pal, box.col = "white", cex = 0.7, inset = 0.02,
+             title = "Predicted RR", title.adj = 0
+)
+legend(lg$rect$left, lg$rect$top - lg$rect$h, pm_scale, inset = 0.02, 
+       pch = 21, pt.cex = size_scale, pt.bg = "grey",box.col = "white", cex = 0.7,   
+       #  title = expression(paste("Mean annual ", PM[2.5], "(", mu, "g/", m^3, ")")),
+       title = "", bg = "white",
+       title.adj = 1, y.intersp = 1.5, xjust = 0
+)
+text(lg$rect$left, lg$rect$top - lg$rect$h, cex = .7, adj = c(0, 1.3),
+     expression(paste("Mean ", PM[2.5], " concentration (", mu, "g/", m^3, ")")))
+
+dev.print(png, filename = "Results/Figure1.png", units = "in", res = 200)
+dev.print(pdf, file = "Results/Figure1.pdf")
+
+#-------------------------------------
 #  Prediction of the RR for each components separately
 #-------------------------------------
 
@@ -94,7 +140,8 @@ cseq <- seq(.01, .99, by = .01)
 ov_mean <- mean(acomp(mean_comp))
 
 # Prepare prediction data.frame
-newdat <- data.frame(indicator = rep(0, length(cseq)))
+newdat <- list(indicators = matrix(0, length(cseq), 2, 
+  dimnames = list(NULL, sprintf("PC%i", 1:2))))
 
 # Prepare objects to store predictions, confidence limits and whether the proportion value is observed for the component
 preds <- plo <- pup <- is_obs <- matrix(NA, length(cseq), p)
@@ -122,27 +169,7 @@ preds_obs <- preds
 preds_obs[!is_obs] <- NA
 
 #-------------------------------------
-#  Figure 4.1: all predictions on the same panel
-#-------------------------------------
-x11(width = 10, height = 7)
-par(mar = c(5, 4, 4, 10) + .1)
-matplot(100 * cseq, preds, type = "l", lty = 2, col = spec_pal, 
-  ylab = "RR", xlab = "Proportion (%)", cex.lab = 1.2)
-# Add thicker lines for the observed range
-matlines(100 * cseq, preds_obs, lty = 1, lwd = 3, col = spec_pal)
-# Add legends
-abline(h = 1)
-lg <- legend(par("usr")[2], par("usr")[4], spec_labs, lwd = 3, col = spec_pal, 
-  bty = "n", xpd = T, y.intersp = 1.2)
-legend(par("usr")[2], with(lg$rect, top - h), c("Observed range", "Extrapolation"), 
-  lwd = c(3, 1), lty = 1:2, bty = "n", xpd = T, y.intersp = 1.2, col = grey(.5))
-  
-dev.print(png, filename = "Paper_Figures/Figure4.1_RRpredictionAll.png", 
-  units = "in", res = 100)
-dev.print(pdf, file = "Paper_Figures/Figure4.1_RRpredictionAll.pdf")
-
-#-------------------------------------
-#  Figure 4.2: all predictions on different panels
+#  Figure 4: all predictions on different panels
 #-------------------------------------
 
 # Panel matrix
@@ -173,16 +200,16 @@ for (j in seq_len(p)){
   abline(h = 1)
 }
 
-dev.print(png, filename = "Paper_Figures/Figure4.2_RRprediction_MultiPanel.png", 
+dev.print(png, filename = "Results/Figure4.png", 
   units = "in", res = 100)
-dev.print(pdf, file = "Paper_Figures/Figure4.2_RRprediction_MultiPanel.pdf")
+dev.print(pdf, file = "Results/Figure4.pdf")
 
 #-------------------------------------
 #  Comparison with nested models
 #-------------------------------------
 
 # Apply model with only indicator PC
-metaindic <- mixmeta(coefall ~ indicator, vcovall, 
+metaindic <- mixmeta(coefall ~ indicators, vcovall, 
   random = ~ 1|country/city,
   data = cities, method = "reml", subset = conv)
 
@@ -198,73 +225,26 @@ compar_tab <- data.frame(
   i2stat = sapply(allmodels, function(x) summary(x)$i2stat)
 )
 
-# F-test between nested models
-ftest <- function(full, null){
-  rssf <- sum(residuals(full)^2)
-  pfu <- full$rank
-  rssn <- sum(residuals(null)^2)
-  pn <- null$rank
-  fstat <- ((rssn - rssf) / (pfu - pn)) / (rssf / full$df.residual)
-  pval <- 1 - pf(fstat, pfu - pn, full$df.residual)
-  return(list(fstat = fstat, pvalue = pval))
+fwald <- function(full, null) {
+  ind <- !names(coef(full)) %in% names(coef(null))
+  coef <- coef(full)[ind]
+  vcov <- vcov(full)[ind,ind]
+  waldstat <- coef %*% solve(vcov) %*% coef
+  df <- length(coef)
+  pval <- 1 - pchisq(waldstat, df)
+  return(list(waldstat = waldstat, pvalue = pval))
 }
 
-full_F <- ftest(metamod, metaindic)
-indic_F <- ftest(metaindic, metanull)
+full_wald <- fwald(metamod, metaindic)
+indic_wald <- fwald(metaindic, metanull)
 
 # Add to the table
-compar_tab$Fstat <- c(full_F$fstat, indic_F$fstat, NA)
-compar_tab$Fpvalue <- c(full_F$pvalue, indic_F$pvalue, NA)
+compar_tab$Wald_stat <- c(full_wald$waldstat, indic_wald$waldstat, NA)
+compar_tab$Wald_pvalue <- c(full_wald$pvalue, indic_wald$pvalue, NA)
 
 #---- Export Table 2
-write.table(compar_tab, file = "Paper_Figures/Table2.csv", quote = F,
+write.table(compar_tab, file = "Results/Table2.csv", quote = F,
   row.names = F, sep = ";")
-
-#-------------------------------------
-# Figure 1: Map with BLUPS
-#-------------------------------------
-
-# Compute average PM2.5
-mean_pm <- sapply(dlist, function(d) mean(d$pm25, na.rm = T))
-
-# Create colorscale based on RR
-cutoff <- seq(0.975, 1.025, by = 0.005)
-labels <- paste0(paste0(cutoff[-length(cutoff)], "-", cutoff[-1]))
-citycat <- cut(BLUPall, cutoff, labels = labels, include.lowest = T)
-pal <- tim.colors(length(labels))
-
-# Create point size based on mean PM2.5
-ptsiz_rng <- c(.5, 2.5)
-mean_scale <- (mean_pm - min(mean_pm)) / (diff(range(mean_pm)))
-pt_size <- mean_scale * diff(ptsiz_rng) + ptsiz_rng[1]
-pm_scale <- pretty(mean_pm)
-size_scale <- (pm_scale - min(mean_pm)) / (diff(range(mean_pm))) * 
-  diff(ptsiz_rng) + ptsiz_rng[1]
-
-#---- Draw map
-x11(width = 10)
-map("worldHires", mar=c(0,0,0,0), col = grey(0.95),
-  myborder = 0, fill = T, border = grey(0.5), lwd = 0.3)
-# Add points with size = RR and colorscale for mean PM2.5
-points(cities$long, cities$lat, pch = 21, cex = pt_size, bg = pal[citycat])
-# Scale and legend
-map.scale(-5, -50, ratio = F, cex = 0.7, relwidth = 0.1)
-rect(par("usr")[1], 45, -129, -70, border = NA, col = "white")
-lg <- legend(-175, 47, labels, pt.cex = 1.2, bg = "white",
-  pch = 21, pt.bg = pal, box.col = "white", cex = 0.7, inset = 0.02,
-  title = "Predicted RR", title.adj = 0
-)
-legend(lg$rect$left, lg$rect$top - lg$rect$h, pm_scale, inset = 0.02, 
-  pch = 21, pt.cex = size_scale, pt.bg = "grey",box.col = "white", cex = 0.7,   
-#  title = expression(paste("Mean annual ", PM[2.5], "(", mu, "g/", m^3, ")")),
-  title = "", bg = "white",
-  title.adj = 1, y.intersp = 1.5, xjust = 0
-)
-text(lg$rect$left, lg$rect$top - lg$rect$h, cex = .7, adj = c(0, 1.3),
-  expression(paste("Mean ", PM[2.5], " concentration (", mu, "g/", m^3, ")")))
-  
-dev.print(png, filename = "Paper_Figures/Figure1.png", units = "in", res = 200)
-dev.print(pdf, file = "Paper_Figures/Figure1.pdf")
   
 #-------------------------------------
 #  Save results

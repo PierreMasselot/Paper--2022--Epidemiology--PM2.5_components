@@ -5,9 +5,6 @@
 #
 #####################################################################
 
-library(compositions)
-library(zCompositions)
-
 load("Data/0_Data.RData")
 
 #------------------------------------------
@@ -41,7 +38,7 @@ summary_tab$pm <- tapply(citypm, droplevels(cities$country), function(x){
 })
 
 #--- Export Table 1
-write.table(summary_tab, file = "Paper_Figures/Table1.csv", quote = F,
+write.table(summary_tab, file = "Results/Table1.csv", quote = F,
   row.names = F, sep = ";")
 
 #------------------------------------------
