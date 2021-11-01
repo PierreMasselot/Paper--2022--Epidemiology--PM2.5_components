@@ -14,10 +14,14 @@ load("Data/0_Data.RData")
 # Set up empty objects to save results
 #-------------------------------------
 
+# Coefficients
 coefall <- matrix(NA, nrow(cities), 1, dimnames = list(cities$city))
 redall <- list()
 
+# Vcov matrices
 vcovall <- vector("list", nrow(cities))
+
+# Convergence indicator
 conv <- rep(NA, nrow(cities))
 
 names(vcovall) <- names(conv) <- cities$city
@@ -28,7 +32,7 @@ names(vcovall) <- names(conv) <- cities$city
 
 maxlagp <- 1
 arglagp <- list(fun = "strata") # Equivalent to MA
-argvarp <- list(fun = "lin")  # Nonlin in NEJM paper
+argvarp <- list(fun = "lin")
 
 cen <- 0
 

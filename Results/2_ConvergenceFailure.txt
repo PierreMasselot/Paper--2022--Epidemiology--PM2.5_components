@@ -1,3 +1,3 @@
 [1] "Convergence failed"
-[1] cityname    countryname
-<0 rows> (or 0-length row.names)
+      cityname countryname
+40 CedarRapids         USA

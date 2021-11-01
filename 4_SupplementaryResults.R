@@ -64,9 +64,12 @@ dev.print(pdf, file = "Results/FigureS1.pdf")
 #  Supplemental Material B: Residual Analysis
 #-------------------------------------
 
+resvec <- rep(NA, nrow(cities))
+resvec[conv] <- residuals(metamod)
+
 #---- Normality of residuals ----
 x11()
-hist(residuals(metamod), border = "white", col = 4, xlab = "Residuals", freq = F,
+hist(resvec, border = "white", col = 4, xlab = "Residuals", freq = F,
      main = "")
 
 dev.print(png, filename = "Results/FigureS2.png", 
@@ -80,7 +83,7 @@ nregion <- length(unique(cities$region))
 reg_ord <- order(cities$region)
 cities_ord <- cities[reg_ord,]
 cities_ord$region <- droplevels(cities_ord$region)
-res_ord <- residuals(metamod)[reg_ord]
+res_ord <- resvec[reg_ord]
 
 # Color palette and point type
 reg_pal <- rainbow_hcl(nregion)
@@ -103,11 +106,13 @@ dev.print(png, filename = "Results/FigureS3.png",
 dev.print(pdf, file = "Results/FigureS3.pdf")
 
 #---- Plot residuals by components ----
+pm <- matrix(c(1:6, 0, 7, 0), nrow = 3, byrow = T)
+
 x11(height = 10, width = 10)
 layout(pm)
 for (j in seq(p)){
-  plot(100 * mean_comp[,j], residuals(metamod), col = spec_pal[j], pch = 16, 
-       xlim = 100 * range(mean_comp), ylim = range(residuals(metamod)),
+  plot(100 * mean_comp[,j], resvec, col = spec_pal[j], pch = 16, 
+       xlim = 100 * range(mean_comp), ylim = range(resvec, na.rm = T),
        ylab = "Residuals", xlab = "Proportion (%)",
        main = bquote(bold(.(spec_labs[j][[1]]))))
 }
@@ -117,7 +122,7 @@ dev.print(png, filename = "Results/FigureS4.png",
 dev.print(pdf, file = "Results/FigureS4.pdf")
 
 #---- Check extreme residuals ----
-res_sort <- order(residuals(metamod))
+res_sort <- order(resvec)
 # Negative residuals
 cities[res_sort[1:3],]
 # Positive residuals
@@ -128,7 +133,7 @@ cities[res_sort[nrow(cities) - 0:2],]
 #  Supplemental Material C: Alternative representation of results
 #-------------------------------------
 
-#----- Figure 4: Predictions on the same panel -----
+#----- Figure S5: Predictions on the same panel -----
 
 x11(width = 10, height = 7)
 par(mar = c(5, 4, 4, 10) + .1)
@@ -214,49 +219,6 @@ text(0, .92, "RR", xpd = T, cex = 1.5)
 
 dev.print(png, filename = "Results/FigureS6.png", units = "in", res = 100)
 dev.print(pdf, file = "Results/FigureS6.pdf")
-
-#-------------------------------------
-#  Forest plot of the estimated coefficients in the meta-regression model
-#-------------------------------------
-
-# Coefficient retrieving
-coef_est <- rep(NA, p)
-coef_est[-p] <- coef(metamod)[2:p]
-coef_est[p] <- -sum(coef_est, na.rm = T) # beta7 = - sum(beta1, ..., beta6)
-
-# Standard errors
-se_est <- rep(NA, p)
-se_est[-p] <- sqrt(diag(vcov(metamod))[2:p])
-se_est[p] <- sqrt(sum(vcov(metamod)[2:p,2:p])) # var(beta7) = sum_j sum_k cov(betaj, betak) (variance of sum of random variables)
-
-# Confidence intervals
-lo_est <- coef_est - 1.96 * se_est
-up_est <- coef_est + 1.96 * se_est
-sig_est <- lo_est > 0 | up_est < 0
-
-# We mulitply everything by ln(2) to interpret it as the impact of doubling the relative proportion of the composnents
-coef_est <- log(2) * coef_est
-lo_est <- log(2) * lo_est
-up_est <- log(2) * up_est
-
-# Forestplot of the RR increase
-x11()
-par(mar = c(5, 10, 4, 2) + .1)  
-plot(exp(coef_est), -seq_len(7), 
-  xlab = "Relative Excess Risk", ylab = "", cex.lab = 1.3,
-  axes = F, xlim = range(c(exp(lo_est), exp(up_est))))
-abline(v = 1)
-segments(exp(lo_est), -seq_len(7), exp(up_est), -seq_len(7), lwd = 2,
-  col = grey(.2))
-points(exp(coef_est), -seq_len(7), cex = ifelse(sig_est, 2, 1.5), 
-   pch = ifelse(sig_est, 15, 16), col = spec_pal)
-axis(1, cex.axis = 1.1)
-axis(2, at = -seq_len(7), labels = spec_labs, 
-  las = 1, hadj = 1, lwd.ticks = 0, lwd = 0, cex.axis = 1.3)
-
-dev.print(png, filename = "Results/FigureS7.png", 
-  units = "in", res = 200)
-dev.print(pdf, file = "Results/FigureS7.pdf")
 
 
 #-------------------------------------

@@ -25,7 +25,7 @@ spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), expression(NO[
   "BC", "OC", "SS", "DUST")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
-# Zeros imputation (/!\ think about it more thoroughly)
+# Zeros imputation
 imp_spec <- multRepl(tot_spec[,spec_inds], label = 0, dl = rep(1e-5, 7))
 
 # Create compositional data object
@@ -42,20 +42,26 @@ prop_zero <- apply(tot_spec[,spec_inds], 2, function(x) mean(x == 0))
 #   Mean composition per year and country
 #------------------------------------------
 
+# Split by country
 count_split <- split(as.data.frame(imp_spec), 
   list(country = tot_spec$country, year = tot_spec$year))
+
+# Average by country and year
 agg_spec <- t(sapply(count_split, function(x) mean(acomp(x))))
 agg_spec_rows <- Reduce(rbind,strsplit(rownames(agg_spec), "\\."))
 
+#----- Plot the average
 x11(width = 15, height = 10)
 par(mfrow = n2mfrow(nrow(countries) + 1, asp = 1.5), 
   mar = c(3, 2, 3, 1))
 for (i in seq_len(nrow(countries))){
+  # Select country
   country_inds <- agg_spec_rows[,1] == countries$country[i]
   country_dat <- agg_spec[country_inds,]
   country_dat <- merge(cbind(as.numeric(agg_spec_rows[country_inds, 2]), country_dat), 
     2003:2017, by = 1, all.y = T)
   
+  # Barplot
   bp <- barplot(t(data.matrix(country_dat[,-1])), col = spec_pal, 
     border = NA, names.arg = country_dat[,1], 
     main = countries$countryname[i])
@@ -88,10 +94,15 @@ colnames(mean_comp) <- spec_names
 var_mat <- variation(acomp(mean_comp))
 colnames(var_mat) <- rownames(var_mat) <- paste(":", spec_labs) 
 
-x11()
-corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5)
+# Color palette
+colpal <- colorRampPalette(c('#FFFFFF', '#D1E5F0', '#92C5DE',
+  '#4393C3', '#2166AC', '#053061'))(20)
 
-dev.print(png, filename = "Results/Figure3.png", 
+x11()
+corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5,
+  lower.col = colpal, upper.col = colpal)
+
+dev.print(png, filename = "Results/FigureS7.png",
   units = "in", res = 200)
-dev.print(pdf, file = "Results/Figure3.pdf")
+dev.print(pdf, file = "Results/FigureS7.pdf")
   

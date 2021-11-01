@@ -11,42 +11,32 @@ load("Data/0_Data.RData")
 #  Country level summary table
 #------------------------------------------
 
-summary_tab <- data.frame(country = unique(cities$countryname))
+# Initialize summary table with number of cities
+summary_tab <- aggregate(city ~ countryname, cities, length)
 
-# Number of cities per country
-summary_tab$ncities <- table(droplevels(cities$country))
-sum(summary_tab$ncities)
-
-# Data period per country
-cityperiod <- lapply(dlist, function(x) range(x$year))
-countryperiod <- tapply(cityperiod, droplevels(cities$country), 
-  function(x) range(unlist(x)))
-mean(sapply(countryperiod, diff) + 1) # Average length
-summary_tab$period <- sapply(countryperiod, paste, collapse = " - ")
-
-# Total deaths per country
-citydeath <- sapply(dlist, function(x) sum(x$death, na.rm = T))
-summary_tab$death <- tapply(citydeath, droplevels(cities$country), sum)
-sum(summary_tab$death)
-
-# Average PM2.5 concentration per country
-citypm <- lapply(dlist, "[", , "pm25")
-summary_tab$pm <- tapply(citypm, droplevels(cities$country), function(x){
-  allpm <- na.omit(unlist(x))
-  sprintf("%2.1f (%2.1f - %2.1f)", mean(allpm), quantile(allpm, .1), 
+#----- Add summaries from dlist
+dlist_sum <- tapply(dlist, droplevels(cities$countryname), function(d){
+  # Data period per country
+  period <- range(unlist(lapply(d, "[[", "year")))
+  periodstr <- paste(period, collapse = " - ")
+  
+  # Total deaths per country
+  totdeaths <- sum(unlist(lapply(d, "[[", "death")), na.rm = T)
+  
+  # Average PM2.5 concentration per country
+  allpm <- na.omit(unlist(lapply(d, "[[", "pm25")))
+  pmstr <- sprintf("%2.1f (%2.1f - %2.1f)", mean(allpm), quantile(allpm, .1), 
     quantile(allpm, .9))
+  
+  # Return
+  c(period = periodstr, death = totdeaths, pm = pmstr)
 })
+
+# Add to summary table
+summary_tab <- cbind(summary_tab, 
+  do.call(rbind, dlist_sum)[match(summary_tab$countryname, names(dlist_sum)),])
 
 #--- Export Table 1
 write.table(summary_tab, file = "Results/Table1.csv", quote = F,
-  row.names = F, sep = ";")
+  row.names = F, sep = ",")
 
-#------------------------------------------
-#  Mean PM2.5 by city for the map
-#------------------------------------------
-
-mean_pm <- sapply(dlist, function(d) mean(d$pm25, na.rm = T))
-
-## Used in the map at the end of script 3_SecondStage_MetaRegComposition.R
-
-save(mean_pm, summary_tab, file = "Data/1_Summary.RData")

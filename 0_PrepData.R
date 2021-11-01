@@ -11,42 +11,36 @@ library(tsModel)
 # Load data and keep cities with records
 #------------------------------------------
 
-# Load pollution data
+#----- Load MCC pollution data
 load("Data/MCCdata_Pollution_20200504.RData")
 citiespoll <- read.csv("Data/Metadatamccfinal20200504.csv")
 
-# Keep only cities that have an air pollution record
-subcities <- as.character(citiespoll[,2])
+# Keep only cities that have a PM2.5 record
+pmcities <- subset(citiespoll, pm25, citycode, drop = T)
 
-dlist <- dlist[cities$city %in% subcities]
-cities <- cities[cities$city %in% subcities,]
-
-subcountries <- as.character(unique(cities$country))
-countries <- countries[countries$country %in% subcountries,]
-
-# Then keep only cities with a PM2.5 record
-citiespm25 <- citiespoll$pm25 == TRUE
-
-dlist <- dlist[citiespm25]
-cities <- cities[citiespm25,]
+dlist <- dlist[pmcities]
+cities <- cities[cities$city %in% pmcities,]
 
 subcountries <- as.character(unique(cities$country))
 countries <- countries[countries$country %in% subcountries,]
 
-# Keep only some codes for each country (ask Francesco)
+# Select country codes
 subcountry <- sort(c("aus8809","can8615","chi9615","chl0414", "est9715","fnl9414",
   "ger9315", "grc0110", "jap1115","mex9814", "nor6918", "per0814", "por8018", 
   "rom9416","sa9713", "spa9014", "sui9513","swe9010","twn9414","uk9016Poll",
   "usa7306"))
 
-dlist <- dlist[cities$country %in% subcountry]
 cities <- cities[cities$country %in% subcountry,]
+dlist <- dlist[cities$city]
 countries <- countries[countries$country %in% subcountry,]
 
-# Load PM constituent data
+#----- Load PM constituent data
+
+# Select files
 fexp <- "PM2\\.5_SPEC_10km_buffer_[0-9]{4}"
-#fexp <- "PM2\\.5_SPEC_[0-9]{4}"
 flist <- list.files("Data/MCC_PM_SPEC_New", pattern = fexp)
+
+# Loop on files to read and store them
 dlist_spec <- vector("list", length(flist))
 names(dlist_spec) <- as.character(2003:2017)
 for (i in seq_along(flist)){
@@ -54,36 +48,56 @@ for (i in seq_along(flist)){
   dlist_spec[[i]]$year <- names(dlist_spec)[i]
   rownames(dlist_spec[[i]]) <- NULL  
 }
+
+# Bind them in a big data.frame
 ddf_spec <- do.call(rbind, dlist_spec)
+
+# And finally split by city
 dlist_spec <- split(ddf_spec, f = ddf_spec$city)
 
-# Load indicator data
-load("Data/mcc_indicators_20200504.RData") # Socio-economic
-load("Data/MCC_indicators_UCD_20200504.RData") # Environment
+#----- Load indicator data
+
+# Socio-economic indicators (OECD)
+load("Data/mcc_indicators_20200504.RData")
+
+# Environmental indicators (Urban Centre Database)
+load("Data/MCC_indicators_UCD_20200504.RData")
+
+# Merge them together
 mcc.indicators <- merge(mcc.indicators, final.ucd.mcc, 
   by.x = "city", by.y = "citiescode")
+
+# Select indicators of interest
+indic_names <- c("oldpopprop", "GDP", "avgtmean", 
+  "totalrange", "E_GR_AV00", "E_GR_AV14", "B00", "B15")
+mcc.indicators <- mcc.indicators[,c("city", indic_names)]
+
+# Merge with city data.frame
+cities <- merge(cities, mcc.indicators, all = F)
+
+#----- Linkage of all datasets
   
 # Select common cities
 commoncities <- intersect(names(dlist_spec), cities$city)
-commoncities <- Reduce(intersect, 
-  list(names(dlist_spec), cities$city, mcc.indicators$city))
 
-dlist <- dlist[names(dlist) %in% commoncities]
-dlist_spec <- dlist_spec[names(dlist_spec) %in% commoncities]
-dlist_spec <- dlist_spec[names(dlist)]
+# Keep only common cities and reorder
 cities <- cities[cities$city %in% commoncities,]
-countries <- countries[countries$country %in% cities$country,]
-mcc.indicators <- mcc.indicators[mcc.indicators$city %in% commoncities,]
+cities <- cities[with(cities, order(country, city)),]
 
-capture.output(print("Cities with pollution record"), table(cities$country),
-  file = "Results/0_cities.txt")
+# Select cities in other objects
+dlist <- dlist[cities$city]
+dlist_spec <- dlist_spec[cities$city]
+countries <- countries[countries$country %in% cities$country,]
 
 #------------------------------------------
 #      Compute relevant variables
 #------------------------------------------
+
+# Parameters
 pmL <- 1
 trim <- .05
 
+#---- Loop on cities to compute variables
 for (i in seq_len(nrow(cities))){
   # Define the mortality variable (all-cause or non-external depending on the
   #   country)
@@ -110,8 +124,10 @@ for (i in seq_len(nrow(cities))){
 #------------------------------------------
 #     Filter cities on data quality
 #------------------------------------------
+
 dlist_orig <- dlist
-addyears <- 1999:2002 # Additional years for 1st stage to have longer records (especially for USA for which data only covers until 2006)
+
+#----- Curate time series
 for(i in seq(nrow(cities))) {
   # Set outliers to NAs in order to exclude them from the analysis
   dlist[[i]]$death[dlist[[i]]$outlierm == 1] <- NA
@@ -121,17 +137,7 @@ for(i in seq(nrow(cities))) {
   dr <- range(which(!is.na(dlist[[i]]$pm25)))
   dlist[[i]] <- dlist_orig[[i]] <- dlist[[i]][dr[1]:dr[2],]
   
-  # Keep only common years between dlist and dlist_spec
-  # N.B. Here I keep incomplete years as well 
-#  commonyears <- intersect(unique(dlist[[i]]$year), 
-#    dlist_spec[[i]]$year)
-#  dlist[[i]] <- dlist[[i]][dlist[[i]]$year %in% 
-#    union(addyears, commonyears),]
-#  dlist_spec[[i]] <- dlist_spec[[i]][
-#    dlist_spec[[i]]$year %in% commonyears,]
-  # We consider that pollution does not vary in time for recent years.
-  # Thus we keep all years of species.
-  # However we keep pm2.5 data only post-1999
+  # Keep 1999 and after althougb spec starts in 2003 to have longer time series
   dlist[[i]] <- dlist[[i]][dlist[[i]]$year >= 1999,]
   
   # Removing lines containing only zeros in constituents
@@ -139,15 +145,6 @@ for(i in seq(nrow(cities))) {
   dlist_spec[[i]] <- dlist_spec[[i]][
     apply(dlist_spec[[i]][,spec_inds] != 0, 1, any),]
 }
-
-# Remove badly linked values from MCC indicators
-mcc.indicators$TotPop[mcc.indicators$TotPop.source != 1] <- NA
-mcc.indicators$Density[mcc.indicators$Density.source != 1] <- NA
-mcc.indicators$UrbArea[mcc.indicators$UrbArea.source != 1] <- NA
-mcc.indicators$GreenArea[mcc.indicators$GreenArea.source != 1] <- NA
-mcc.indicators$PopCore[mcc.indicators$PopCore.source != 1] <- NA
-mcc.indicators$Sprawl[mcc.indicators$Sprawl.source != 1] <- NA
-
 
 #---- Exclusion according to a number of criteria
 exclusion <- list()
@@ -173,9 +170,7 @@ exclusion$noOverlap <- sapply(dlist_spec, nrow) == 0
 # Incomplete data on MCC indicators
 # Density has too much NAs
 # For the UCD indicators, we take both the 2000 and 2014/2015 ones
-indic_names <- c("oldpopprop", "GDP", "Poverty", "avgtmean", 
-  "totalrange", "E_GR_AV00", "E_GR_AV14", "B00", "B15")
-exclusion$missingMCCindicators <- !complete.cases(mcc.indicators[,indic_names])
+exclusion$missingMCCindicators <- !complete.cases(cities[,indic_names])
 
 #---- Check excluded cities and perform exclusion
 capture.output(print("Excluded cities because of missing values"),
@@ -192,7 +187,6 @@ dlist_spec <- dlist_spec[!excl]
 dlist_orig <- dlist_orig[!excl]
 cities <- cities[!excl,]
 countries <- countries[countries$country %in% cities$country,]
-mcc.indicators <- mcc.indicators[!excl,]
 
 # Final count
 citycount <- table(cities$country)
