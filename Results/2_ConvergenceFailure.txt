@@ -1,3 +1,0 @@
-[1] "Convergence failed"
-      cityname countryname
-40 CedarRapids         USA

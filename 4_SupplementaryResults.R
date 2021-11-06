@@ -56,9 +56,7 @@ legend("topright", legend = unique(cities$region),
   inset = .02, ncol = 1, xpd = T
 )
 
-dev.print(png, filename = "Results/FigureS1.png", 
-  units = "in", res = 100)
-dev.print(pdf, file = "Results/FigureS1.pdf")
+dev.print(pdf, file = "Results/eFigure1.pdf")
 
 #-------------------------------------
 #  Supplemental Material B: Residual Analysis
@@ -72,9 +70,7 @@ x11()
 hist(resvec, border = "white", col = 4, xlab = "Residuals", freq = F,
      main = "")
 
-dev.print(png, filename = "Results/FigureS2.png", 
-          units = "in", res = 200)
-dev.print(pdf, file = "Results/FigureS2.pdf")
+dev.print(pdf, file = "Results/eFigure2.pdf")
 
 #---- Plot residuals by region ----
 
@@ -95,15 +91,13 @@ change_reg <- which(diff(as.numeric(cities_ord$region)) != 0) + .5
 # plot residuals
 x11(width = 10)
 par(mar = c(5, 4, 4, 10))
-plot(res_ord, pch = reg_pch[cities_ord$region], col = reg_pal[cities_ord$region],
-     xlab = "", ylab = "Residual")
+plot(res_ord, pch = reg_pch[cities_ord$region], 
+  col = reg_pal[cities_ord$region], xlab = "", ylab = "Residual")
 abline(h = 0)
 legend(par("usr")[2], par("usr")[4], unique(cities_ord$region), pch = reg_pch,
-       col = reg_pal, bty = "n", xpd = T, title = "Region")
+  col = reg_pal, bty = "n", xpd = T, title = "Region")
 
-dev.print(png, filename = "Results/FigureS3.png", 
-          units = "in", res = 200)
-dev.print(pdf, file = "Results/FigureS3.pdf")
+dev.print(pdf, file = "Results/eFigure3.pdf")
 
 #---- Plot residuals by components ----
 pm <- matrix(c(1:6, 0, 7, 0), nrow = 3, byrow = T)
@@ -112,14 +106,12 @@ x11(height = 10, width = 10)
 layout(pm)
 for (j in seq(p)){
   plot(100 * mean_comp[,j], resvec, col = spec_pal[j], pch = 16, 
-       xlim = 100 * range(mean_comp), ylim = range(resvec, na.rm = T),
-       ylab = "Residuals", xlab = "Proportion (%)",
-       main = bquote(bold(.(spec_labs[j][[1]]))))
+    xlim = 100 * range(mean_comp), ylim = range(resvec, na.rm = T),
+    ylab = "Residuals", xlab = "Proportion (%)",
+    main = bquote(bold(.(spec_labs[j][[1]]))))
 }
 
-dev.print(png, filename = "Results/FigureS4.png", 
-          units = "in", res = 200)
-dev.print(pdf, file = "Results/FigureS4.pdf")
+dev.print(pdf, file = "Results/eFigure4.pdf")
 
 #---- Check extreme residuals ----
 res_sort <- order(resvec)
@@ -145,12 +137,11 @@ matlines(100 * cseq, preds_obs, lty = 1, lwd = 3, col = spec_pal)
 abline(h = 1)
 lg <- legend(par("usr")[2], par("usr")[4], spec_labs, lwd = 3, col = spec_pal, 
   bty = "n", xpd = T, y.intersp = 1.2)
-legend(par("usr")[2], with(lg$rect, top - h), c("Observed range", "Extrapolation"), 
-  lwd = c(3, 1), lty = 1:2, bty = "n", xpd = T, y.intersp = 1.2, col = grey(.5))
+legend(par("usr")[2], with(lg$rect, top - h), 
+  c("Observed range", "Extrapolation"), lwd = c(3, 1), lty = 1:2, bty = "n", 
+  xpd = T, y.intersp = 1.2, col = grey(.5))
   
-dev.print(png, filename = "Results/FigureS5.png", 
-  units = "in", res = 100)
-dev.print(pdf, file = "Results/FigureS5.pdf")
+dev.print(pdf, file = "Results/eFigure5.pdf")
 
 #----- Plot ternary diagram with predictions -----
 ## Create function to predict for Ternary plot
@@ -204,8 +195,10 @@ for (i in seq_along(tern_comps)){
   }
   
   # Add to plot
-  TernaryPlot(alab = spec_labs[tern_comps[[i]][1]], blab = spec_labs[tern_comps[[i]][2]],
-    clab = spec_labs[tern_comps[[i]][3]], lab.col = spec_pal[tern_comps[[i]]],
+  TernaryPlot(alab = spec_labs[tern_comps[[i]][1]], 
+    blab = spec_labs[tern_comps[[i]][2]],
+    clab = spec_labs[tern_comps[[i]][3]], 
+    lab.col = spec_pal[tern_comps[[i]]],
     grid.col = "white", grid.minor.col = "white")
   ColourTernary(tern_values, spectrum = NULL)
   TernaryPoints(mean_comp[,tern_comps[[i]]], pch = 16)
@@ -217,8 +210,7 @@ image.plot(zlim = c(0.985, 1.015), col = colpal(20),
   legend.only = T, xpd = T, smallplot = c(0, .05, 0.2, .8))
 text(0, .92, "RR", xpd = T, cex = 1.5)
 
-dev.print(png, filename = "Results/FigureS6.png", units = "in", res = 100)
-dev.print(pdf, file = "Results/FigureS6.pdf")
+dev.print(pdf, file = "Results/eFigure6.pdf")
 
 
 #-------------------------------------
@@ -237,5 +229,5 @@ rownames(cormat) <- c("Absolute", "Relative")
 colnames(cormat) <- spec_names
 cormat <- round(cormat, 2)
 
-write.table(cormat, file = "Results/TableS2.csv", quote = F,
-  row.names = T, sep = ";")
+write.table(cormat, file = "Results/eTable2.csv", quote = F,
+  row.names = T, sep = ",")

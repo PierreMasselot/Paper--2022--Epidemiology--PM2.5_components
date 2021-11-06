@@ -70,8 +70,6 @@ plot.new()
 legend("topleft", spec_labs, fill = spec_pal, bty = "n", ncol = 3,
   cex = 1.8, xpd = NA, border = NA)
 
-dev.print(png, filename = "Results/Figure2.png", 
-  units = "in", res = 200)
 dev.print(pdf, file = "Results/Figure2.pdf")
 
   
@@ -102,7 +100,5 @@ x11()
 corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5,
   lower.col = colpal, upper.col = colpal)
 
-dev.print(png, filename = "Results/FigureS7.png",
-  units = "in", res = 200)
-dev.print(pdf, file = "Results/FigureS7.pdf")
+dev.print(pdf, file = "Results/eFigure7.pdf")
   

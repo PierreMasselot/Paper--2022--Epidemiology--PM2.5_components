@@ -7,6 +7,10 @@
 
 library(tsModel)
 
+# Workspace directory must be set at the root of the repo
+
+# Data are not shared. Should be stored in a subfolder "Data"
+
 #------------------------------------------
 # Load data and keep cities with records
 #------------------------------------------
@@ -25,10 +29,10 @@ subcountries <- as.character(unique(cities$country))
 countries <- countries[countries$country %in% subcountries,]
 
 # Select country codes
-subcountry <- sort(c("aus8809","can8615","chi9615","chl0414", "est9715","fnl9414",
-  "ger9315", "grc0110", "jap1115","mex9814", "nor6918", "per0814", "por8018", 
-  "rom9416","sa9713", "spa9014", "sui9513","swe9010","twn9414","uk9016Poll",
-  "usa7306"))
+subcountry <- sort(c("aus8809","can8615","chi9615","chl0414", "est9715",
+  "fnl9414", "ger9315", "grc0110", "jap1115","mex9814", "nor6918", "per0814", 
+  "por8018", "rom9416","sa9713", "spa9014", "sui9513","swe9010","twn9414",
+  "uk9016Poll", "usa7306"))
 
 cities <- cities[cities$country %in% subcountry,]
 dlist <- dlist[cities$city]
@@ -167,16 +171,8 @@ exclusion$NAtemp<- sapply(dlist, function(d) mean(is.na(d$tmean))) > propt
 # Cities with no overlap between pollution and SPEC datasets
 exclusion$noOverlap <- sapply(dlist_spec, nrow) == 0
 
-# Incomplete data on MCC indicators
-# Density has too much NAs
-# For the UCD indicators, we take both the 2000 and 2014/2015 ones
+# Remove incomplete data
 exclusion$missingMCCindicators <- !complete.cases(cities[,indic_names])
-
-#---- Check excluded cities and perform exclusion
-capture.output(print("Excluded cities because of missing values"),
-  lapply(exclusion, function(e) cities[e,c("cityname", "countryname")]),
-  file = "Results/0_cities.txt", append = TRUE
-)
 
 # Finally proceed to exclusion
 exclusion <- as.data.frame(exclusion)
@@ -187,12 +183,5 @@ dlist_spec <- dlist_spec[!excl]
 dlist_orig <- dlist_orig[!excl]
 cities <- cities[!excl,]
 countries <- countries[countries$country %in% cities$country,]
-
-# Final count
-citycount <- table(cities$country)
-capture.output(print("Final count"), citycount[citycount > 0], 
-  sprintf("Total: %i", sum(citycount)),
-  file = "Results/0_cities.txt", append = TRUE
-)
 
 save.image("Data/0_Data.RData")

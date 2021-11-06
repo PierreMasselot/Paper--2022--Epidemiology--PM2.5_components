@@ -73,10 +73,3 @@ for(i in seq(length(dlist))) {
 
 # Save results
 save.image("Data/2_FirstStageResults.RData")
-
-capture.output(print("Convergence failed"),
-  cities[!conv, c("cityname","countryname")],
-  file = "Results/2_ConvergenceFailure.txt"
-)
-
-

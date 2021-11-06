@@ -23,8 +23,8 @@ load("Data/2_FirstStageResults.RData")
 # Components and labels
 spec_inds <- grep("PM25", colnames(dlist_spec[[1]]))
 spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
-spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), expression(NO[3]^{"-"}), 
-  "BC", "OC", "SS", "DUST")
+spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), 
+  expression(NO[3]^{"-"}), "BC", "OC", "SS", "DUST")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Mean per city
@@ -52,7 +52,7 @@ indic_form <- sprintf("~ %s", paste(indic_names, collapse = " + "))
 # PCA
 pca_indic <- prcomp(as.formula(indic_form), data = cities,
   na.action = na.exclude, scale. = T)
-# screeplot(pca_indic)
+
 # The first two components account for 58% of the variance
 indicators <- pca_indic$x[,1:2]
 
@@ -118,15 +118,13 @@ lg <- legend(-175, 40, labels, pt.cex = 1.2, bg = "white",
   title.adj = 0
 )
 legend(lg$rect$left, lg$rect$top - lg$rect$h, pm_scale, inset = 0.02, 
-       pch = 21, pt.cex = size_scale, pt.bg = "grey",box.col = "white", cex = 0.7,   
-       title = expression(paste("Mean ", PM[2.5], " concentration (", mu, "g/", m^3, ")")),
-       bg = "white",
-       title.adj = 0, y.intersp = 1.5, xjust = 0, ncol = length(pm_scale)
+  pch = 21, pt.cex = size_scale, pt.bg = "grey",box.col = "white", cex = 0.7,   
+  title = expression(paste("Mean ", PM[2.5], " concentration (", 
+    mu, "g/", m^3, ")")),
+  bg = "white", title.adj = 0, y.intersp = 1.5, xjust = 0, 
+  ncol = length(pm_scale)
 )
-# text(lg$rect$left, lg$rect$top - lg$rect$h, cex = .7, adj = c(0, 1.3),
-#      expression(paste("Mean ", PM[2.5], " concentration (", mu, "g/", m^3, ")")))
 
-dev.print(png, filename = "Results/Figure1.png", units = "in", res = 200)
 dev.print(pdf, file = "Results/Figure1.pdf")
 
 #-------------------------------------
@@ -141,14 +139,15 @@ coef_est[p] <- -sum(coef_est, na.rm = T) # beta7 = - sum(beta1, ..., beta6)
 # Standard errors
 se_est <- rep(NA, p)
 se_est[-p] <- sqrt(diag(vcov(metamod))[2:p])
-se_est[p] <- sqrt(sum(vcov(metamod)[2:p,2:p])) # var(beta7) = sum_j sum_k cov(betaj, betak) (variance of sum of random variables)
+se_est[p] <- sqrt(sum(vcov(metamod)[2:p,2:p]))
 
 # Confidence intervals
 lo_est <- coef_est - 1.96 * se_est
 up_est <- coef_est + 1.96 * se_est
 sig_est <- lo_est > 0 | up_est < 0
 
-# We mulitply everything by ln(2) to interpret it as the impact of doubling the relative proportion of the components
+# We mulitply everything by ln(2) to interpret it as the impact of doubling 
+#   the relative proportion of the components
 coef_est <- log(2) * coef_est
 lo_est <- log(2) * lo_est
 up_est <- log(2) * up_est
@@ -167,10 +166,13 @@ ov_mean <- mean(acomp(mean_comp))
 newdat <- list(indicators = matrix(0, length(cseq), 2, 
   dimnames = list(NULL, sprintf("PC%i", 1:2))))
 
-# Prepare objects to store predictions, confidence limits and whether the proportion value is observed for the component
+# Prepare objects to store predictions, confidence limits and 
+#   whether the proportion value is observed for the component
 preds <- plo <- pup <- is_obs <- matrix(NA, length(cseq), p)
 for (j in seq_len(p)){
-  # Create a compositional grid. The component of interests varies from 0 to 1 (excluded) and the other are taken as the overall mean adjusted for closure while keeping the subcomposition constant
+  # Create a compositional grid. The component of interests varies 
+  #   from 0 to 1 (excluded) and the other are taken as the overall 
+  #   mean adjusted for closure while keeping the subcomposition constant
   xj <- matrix(NA, length(cseq), p, dimnames = list(NULL, spec_names))
   xj[,-j] <- sapply(ov_mean[-j] / sum(ov_mean[-j]), "*", 1 - cseq)
   xj[,j] <- cseq
@@ -181,7 +183,8 @@ for (j in seq_len(p)){
   # Make predictions
   pred_obj <- predict(metamod, newdata = newdat, ci = T)
   
-  # Store predictions and prediction intervals only in the range of observed values
+  # Store predictions and prediction intervals only in the range of 
+  #   observed values
   obs_rng <- range(mean_comp[,j])
   is_obs[,j] <- cseq >= obs_rng[1] & cseq <= obs_rng[2]
   
@@ -255,9 +258,6 @@ plot.new()
 text(par("usr")[1], par("usr")[3], "B", cex = 3, adj = c(0, 0), xpd = T)
 
 #----- Save
-
-dev.print(png, filename = "Results/Figure3.png", 
-  units = "in", res = 100)
 dev.print(pdf, file = "Results/Figure3.pdf")
 
 #-------------------------------------
@@ -300,7 +300,7 @@ compar_tab$Wald_pvalue <- c(full_wald$pvalue, indic_wald$pvalue, NA)
 
 #---- Export Table 2
 write.table(compar_tab, file = "Results/Table2.csv", quote = F,
-  row.names = F, sep = ";")
+  row.names = F, sep = ",")
   
 #-------------------------------------
 #  Save results
