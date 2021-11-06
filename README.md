@@ -1,8 +1,4 @@
-# Paper--2022--Epidemiology--PM2.5_components
-
-Effect modification of PM2.5 risk associated to PM2.5 components
-
-------------------------------------------------------------------
+# Differential mortality risks associated to PM2.5 components: a multi-country multi-city study.
 
 Reproducible R code and results for the publication 
 
