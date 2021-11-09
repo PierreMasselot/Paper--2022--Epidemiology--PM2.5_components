@@ -56,7 +56,7 @@ legend("topright", legend = unique(cities$region),
   inset = .02, ncol = 1, xpd = T
 )
 
-dev.print(pdf, file = "Results/eFigure1.pdf")
+dev.print(png, filename = "Results/eFigure1.png", res = 1000, units = "in")
 
 #-------------------------------------
 #  Supplemental Material B: Residual Analysis
@@ -70,7 +70,7 @@ x11()
 hist(resvec, border = "white", col = 4, xlab = "Residuals", freq = F,
      main = "")
 
-dev.print(pdf, file = "Results/eFigure2.pdf")
+dev.print(png, file = "Results/eFigure2.png", res = 1000, units = "in")
 
 #---- Plot residuals by region ----
 
@@ -97,7 +97,7 @@ abline(h = 0)
 legend(par("usr")[2], par("usr")[4], unique(cities_ord$region), pch = reg_pch,
   col = reg_pal, bty = "n", xpd = T, title = "Region")
 
-dev.print(pdf, file = "Results/eFigure3.pdf")
+dev.print(png, file = "Results/eFigure3.png", res = 1000, units = "in")
 
 #---- Plot residuals by components ----
 pm <- matrix(c(1:6, 0, 7, 0), nrow = 3, byrow = T)
@@ -111,7 +111,7 @@ for (j in seq(p)){
     main = bquote(bold(.(spec_labs[j][[1]]))))
 }
 
-dev.print(pdf, file = "Results/eFigure4.pdf")
+dev.print(png, file = "Results/eFigure4.png", res = 1000, units = "in")
 
 #---- Check extreme residuals ----
 res_sort <- order(resvec)
@@ -141,7 +141,7 @@ legend(par("usr")[2], with(lg$rect, top - h),
   c("Observed range", "Extrapolation"), lwd = c(3, 1), lty = 1:2, bty = "n", 
   xpd = T, y.intersp = 1.2, col = grey(.5))
   
-dev.print(pdf, file = "Results/eFigure5.pdf")
+dev.print(png, file = "Results/eFigure5.png", res = 1000, units = "in")
 
 #----- Plot ternary diagram with predictions -----
 ## Create function to predict for Ternary plot
@@ -210,7 +210,7 @@ image.plot(zlim = c(0.985, 1.015), col = colpal(20),
   legend.only = T, xpd = T, smallplot = c(0, .05, 0.2, .8))
 text(0, .92, "RR", xpd = T, cex = 1.5)
 
-dev.print(pdf, file = "Results/eFigure6.pdf")
+dev.print(png, file = "Results/eFigure6.png", res = 1000, units = "in")
 
 
 #-------------------------------------

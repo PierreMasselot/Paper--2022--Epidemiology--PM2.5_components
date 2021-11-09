@@ -24,7 +24,7 @@ load("Data/2_FirstStageResults.RData")
 spec_inds <- grep("PM25", colnames(dlist_spec[[1]]))
 spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
 spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), 
-  expression(NO[3]^{"-"}), "BC", "OC", "SS", "DUST")
+  expression(NO[3]^{"-"}), "BC", "OC", "Sea salt", "Dust")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Mean per city
@@ -208,7 +208,7 @@ pm <- rbind(c(9, rep(10, 3)),
 
 # Initialize plot
 x11(height = 10, width = 15)
-par(mar = c(5, 5, 3, 1), cex.main = 1.5, cex.lab = 1.2)
+par(mar = c(5, 6, 3, 1), cex.main = 1.5, cex.lab = 1.2)
 layout(pm, width = c(.4, .2, .2, .2), height = c(.1, .3, .3, .3))
 
 #----- Panel A: meta-coefficients

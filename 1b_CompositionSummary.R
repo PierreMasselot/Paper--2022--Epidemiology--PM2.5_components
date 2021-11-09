@@ -21,8 +21,8 @@ tot_spec <- do.call(rbind, dlist_spec)
 #Useful objects for later
 spec_inds <- grep("PM25", colnames(tot_spec))
 spec_names <- c("SO4", "NH4", "NO3", "BC", "OC", "SS", "DUST")
-spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), expression(NO[3]^{"-"}), 
-  "BC", "OC", "SS", "DUST")
+spec_labs <- c(expression(SO[4]^{"2-"}), expression(NH[4]^{"+"}), 
+  expression(NO[3]^{"-"}), "BC", "OC", "Sea salt", "Dust")
 spec_pal <- c(2, 6, 4, 1, 3, 5, 7)
 
 # Zeros imputation
@@ -90,7 +90,9 @@ mean_comp <- t(mean_comp)
 p <- ncol(mean_comp)
 colnames(mean_comp) <- spec_names
 var_mat <- variation(acomp(mean_comp))
+spec_labs[6] <- expression("SS")
 colnames(var_mat) <- rownames(var_mat) <- paste(":", spec_labs) 
+
 
 # Color palette
 colpal <- colorRampPalette(c('#FFFFFF', '#D1E5F0', '#92C5DE',
@@ -100,5 +102,5 @@ x11()
 corrplot.mixed(var_mat, is.corr = F, tl.col = spec_pal, tl.cex = 1.5,
   lower.col = colpal, upper.col = colpal)
 
-dev.print(pdf, file = "Results/eFigure7.pdf")
+dev.print(png, file = "Results/eFigure7.png", res = 1000, units = "in")
   
