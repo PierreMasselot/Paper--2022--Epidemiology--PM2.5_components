@@ -27,3 +27,7 @@ The R code to reproduce the analysis is available. Scripts are meant to be execu
 ### Results
 
 Figures and Tables generated for the publication (including supplemental ones) are available in the Results folder of this repository. 
+
+### Acknowledgements
+
+This work was supported by the Medical Research Council of UK (Grant ID: MR/M022625/1), the Natural Environment Research Council of UK (Grant ID: NE/R009384/1), and the European Union’s Horizon 2020 Project Exhaustion (Grant ID: 820655).
